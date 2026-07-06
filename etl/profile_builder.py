@@ -1,17 +1,11 @@
-"""
-profile_builder.py
-------------------
-Builds behavioral profiles from enrollment data.
-"""
-
 from pathlib import Path
+from datetime import datetime
 import pandas as pd
 
 
 class ProfileBuilder:
 
     def __init__(self):
-
         self.base_dir = Path(__file__).resolve().parent.parent
 
         self.enrollment_path = (
@@ -32,18 +26,16 @@ class ProfileBuilder:
 
         df = pd.read_csv(self.enrollment_path)
 
-        # Metadata columns
         metadata = ["subject", "sessionIndex", "rep"]
 
-        # Timing Features
-        feature_cols = [
-            col for col in df.columns
-            if col not in metadata
+        feature_columns = [
+            c for c in df.columns
+            if c not in metadata
         ]
 
         profiles = (
-            df.groupby("subject")[feature_cols]
-            .agg(["mean", "std", "min", "max", "median"])
+            df.groupby("subject")[feature_columns]
+            .agg(["mean", "std", "median", "min", "max"])
         )
 
         profiles.columns = [
@@ -53,14 +45,16 @@ class ProfileBuilder:
 
         profiles.reset_index(inplace=True)
 
+        profiles["samples_used"] = 250
+        profiles["sessions_used"] = "1,2,3,4,5"
+        profiles["profile_version"] = "v1"
+        profiles["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
         profiles.to_csv(self.output_path, index=False)
 
         print("=" * 60)
-        print("Behavior Profiles Created Successfully")
+        print("Behavior Profiles Generated")
         print("=" * 60)
-
-        print()
-
-        print("Profiles Shape:", profiles.shape)
+        print(f"Profiles : {profiles.shape}")
 
         return profiles

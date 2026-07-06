@@ -5,5 +5,7 @@ builder = ProfileBuilder()
 profiles = builder.build_profiles()
 
 print()
-
 print(profiles.head())
+
+print()
+print(profiles.shape)
