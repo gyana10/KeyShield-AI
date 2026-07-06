@@ -8,7 +8,7 @@ class ProfileBuilder:
     def __init__(self):
         self.base_dir = Path(__file__).resolve().parent.parent
 
-        self.enrollment_path = (
+        self.input_path = (
             self.base_dir /
             "data" /
             "intermediate" /
@@ -24,18 +24,15 @@ class ProfileBuilder:
 
     def build_profiles(self):
 
-        df = pd.read_csv(self.enrollment_path)
+        df = pd.read_csv(self.input_path)
 
         metadata = ["subject", "sessionIndex", "rep"]
 
-        feature_columns = [
-            c for c in df.columns
-            if c not in metadata
-        ]
+        features = [c for c in df.columns if c not in metadata]
 
         profiles = (
-            df.groupby("subject")[feature_columns]
-            .agg(["mean", "std", "median", "min", "max"])
+            df.groupby("subject")[features]
+            .agg(["mean", "std", "min", "max", "median"])
         )
 
         profiles.columns = [
@@ -45,15 +42,22 @@ class ProfileBuilder:
 
         profiles.reset_index(inplace=True)
 
-        profiles["samples_used"] = 250
+        # ---------- Metadata ----------
+
+        sample_count = df.groupby("subject").size()
+
+        profiles["samples_used"] = profiles["subject"].map(sample_count)
+
         profiles["sessions_used"] = "1,2,3,4,5"
+
         profiles["profile_version"] = "v1"
+
         profiles["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         profiles.to_csv(self.output_path, index=False)
 
         print("=" * 60)
-        print("Behavior Profiles Generated")
+        print("Behavior Profiles Generated Successfully")
         print("=" * 60)
         print(f"Profiles : {profiles.shape}")
 

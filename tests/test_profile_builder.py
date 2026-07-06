@@ -4,8 +4,10 @@ builder = ProfileBuilder()
 
 profiles = builder.build_profiles()
 
-print()
+print("\nFirst 5 Profiles\n")
+
 print(profiles.head())
 
-print()
+print("\nShape")
+
 print(profiles.shape)
