@@ -3,6 +3,7 @@ from backend.db.models import Base
 from backend.db.models import User
 from backend.db.enrollment_model import Enrollment
 from backend.db.profile_model import BehaviorProfile
+from backend.db.authentication_log import AuthenticationLog
 
 Base.metadata.create_all(bind=engine)
 
