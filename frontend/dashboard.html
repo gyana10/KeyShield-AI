@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard</title>
+
+<link rel="stylesheet"
+href="css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🛡️ KeyShield AI</h1>
+
+<h2 id="welcomeUser">
+Welcome
+</h2>
+
+<br>
+
+<h3>
+
+Behavior Profile
+
+</h3>
+
+<p>
+
+Status :
+<span id="status">
+
+❌ Not Enrolled
+
+</span>
+
+</p>
+
+<br>
+
+<button
+onclick="window.location.href='enroll.html'">
+
+Start Enrollment
+
+</button>
+
+<br><br>
+
+<h3>
+
+Authentication History
+
+</h3>
+
+<p>
+
+No authentication records.
+
+</p>
+
+</div>
+
+<script>
+
+const token = localStorage.getItem("token");
+
+if(!token){
+
+window.location.href="login.html";
+
+}
+
+</script>
+
+</body>
+
+</html>
