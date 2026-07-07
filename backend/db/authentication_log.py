@@ -25,11 +25,11 @@ class AuthenticationLog(Base):
         ForeignKey("users.id")
     )
 
-    similarity = Column(Float)
-
-    ai_score = Column(Float)
-
     decision = Column(String(30))
+
+    anomaly_score = Column(Float)
+
+    risk = Column(String(20))
 
     created_at = Column(
         DateTime,

@@ -1,8 +1,17 @@
 from fastapi import APIRouter
 from fastapi import Depends
 
+from sqlalchemy.orm import Session
+
+from backend.db.database import get_db
+from backend.db.models import User
+
+from backend.db.authentication_log import AuthenticationLog
+from backend.db.schemas_auth import AuthenticationRequest
+
 from backend.core.dependencies import get_current_email
 
+from backend.ml.feature_adapter import build_features
 from backend.ml.models.predictor import predict
 
 router = APIRouter()
@@ -11,28 +20,52 @@ router = APIRouter()
 @router.post("/authenticate")
 def authenticate(
 
-    data: dict,
+    data: AuthenticationRequest,
 
-    email: str = Depends(get_current_email)
+    email: str = Depends(get_current_email),
+
+    db: Session = Depends(get_db)
 
 ):
 
-    result = predict(data)
+    user = db.query(User).filter(
 
-    if result["prediction"] == 1:
+        User.email == email
 
-        decision = "GENUINE"
+    ).first()
 
-    else:
+    features = build_features(
 
-        decision = "SUSPICIOUS"
+        data.model_dump()
+
+    )
+
+    result = predict(
+
+        features
+
+    )
+
+    log = AuthenticationLog(
+
+        user_id=user.id,
+
+        decision=result["decision"],
+
+        anomaly_score=result["anomaly_score"],
+
+        risk=result["risk"]
+
+    )
+
+    db.add(log)
+
+    db.commit()
 
     return {
 
-        "user": email,
+        "user": user.username,
 
-        "decision": decision,
-
-        "score": round(result["score"],4)
+        **result
 
     }

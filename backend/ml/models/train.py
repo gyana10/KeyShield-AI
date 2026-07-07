@@ -3,14 +3,17 @@ import pandas as pd
 
 from sklearn.ensemble import IsolationForest
 
-# Load enrollment data
+print("=" * 60)
+print("Loading Statistical Feature Dataset")
+print("=" * 60)
+
 df = pd.read_csv(
-    "data/intermediate/enrollment.csv"
+    "data/processed/training_features.csv"
 )
 
 print(df.shape)
 
-# Remove metadata columns
+# Remove metadata
 X = df.drop(
     columns=[
         "subject",
@@ -19,21 +22,28 @@ X = df.drop(
     ]
 )
 
-print("Training Features:", X.shape)
+print("Training Shape:", X.shape)
 
 model = IsolationForest(
-    n_estimators=200,
+
+    n_estimators=300,
+
     contamination=0.02,
+
     random_state=42
+
 )
 
 model.fit(X)
 
 joblib.dump(
+
     model,
+
     "backend/ml/models/isolation_forest.pkl"
+
 )
 
 print("=" * 60)
-print("Model Trained Successfully")
+print("NEW MODEL TRAINED SUCCESSFULLY")
 print("=" * 60)

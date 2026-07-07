@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.api.authenticate import router as auth_ai_router
 from backend.api.auth import router as auth_router
 from backend.api.enrollment import router as enroll_router
+from backend.api.authenticate import router as authenticate_router
 
 app = FastAPI(
     title="KeyShield AI",
@@ -25,6 +26,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(enroll_router)
 app.include_router(auth_ai_router)
+app.include_router(authenticate_router)
 
 
 @app.get("/")
