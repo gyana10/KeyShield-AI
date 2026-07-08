@@ -13,6 +13,8 @@ from backend.core.dependencies import get_current_email
 
 from backend.ml.feature_adapter import build_features
 from backend.ml.models.predictor import predict
+from backend.db.profile_model import UserProfile
+from backend.ml.profile_similarity import calculate_similarity
 
 router = APIRouter()
 
@@ -39,6 +41,16 @@ def authenticate(
         data.model_dump()
 
     )
+    profile = db.query(
+        UserProfile
+    ).filter(
+        UserProfile.user_id == user.id
+    ).first()
+
+    profile_result = calculate_similarity(
+       profile,
+       features
+    )
 
     result = predict(
 
@@ -64,8 +76,19 @@ def authenticate(
 
     return {
 
-        "user": user.username,
+    "user": user.username,
 
-        **result
+    "decision": result["decision"],
 
-    }
+    "risk": result["risk"],
+
+    "anomaly_score":
+        result["anomaly_score"],
+
+    "profile_similarity":
+        profile_result["similarity"],
+
+    "explanations":
+        profile_result["explanations"]
+
+}
