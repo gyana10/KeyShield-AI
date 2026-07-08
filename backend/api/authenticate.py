@@ -13,6 +13,7 @@ from backend.core.dependencies import get_current_email
 
 from backend.ml.feature_adapter import build_features
 from backend.ml.models.predictor import predict
+
 from backend.db.profile_model import UserProfile
 from backend.ml.profile_similarity import calculate_similarity
 
@@ -30,34 +31,44 @@ def authenticate(
 
 ):
 
+    # Get current user
     user = db.query(User).filter(
-
         User.email == email
-
     ).first()
 
+    # Build statistical features
     features = build_features(
-
         data.model_dump()
-
     )
+
+    # Load user profile
     profile = db.query(
         UserProfile
     ).filter(
         UserProfile.user_id == user.id
     ).first()
 
-    profile_result = calculate_similarity(
-       profile,
-       features
-    )
+    # Calculate similarity if profile exists
+    if profile:
 
+        profile_result = calculate_similarity(
+            profile,
+            features
+        )
+
+    else:
+
+        profile_result = {
+            "similarity": 0,
+            "explanations": []
+        }
+
+    # ML Prediction
     result = predict(
-
         features
-
     )
 
+    # Save authentication event
     log = AuthenticationLog(
 
         user_id=user.id,
@@ -66,7 +77,9 @@ def authenticate(
 
         anomaly_score=result["anomaly_score"],
 
-        risk=result["risk"]
+        risk=result["risk"],
+
+        profile_similarity=profile_result["similarity"]
 
     )
 
@@ -74,21 +87,19 @@ def authenticate(
 
     db.commit()
 
+    # Return API response
     return {
 
-    "user": user.username,
+        "user": user.username,
 
-    "decision": result["decision"],
+        "decision": result["decision"],
 
-    "risk": result["risk"],
+        "risk": result["risk"],
 
-    "anomaly_score":
-        result["anomaly_score"],
+        "anomaly_score": result["anomaly_score"],
 
-    "profile_similarity":
-        profile_result["similarity"],
+        "profile_similarity": profile_result["similarity"],
 
-    "explanations":
-        profile_result["explanations"]
+        "explanations": profile_result["explanations"]
 
-}
+    }
