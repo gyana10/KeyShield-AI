@@ -9,11 +9,15 @@ from datetime import datetime
 from backend.db.database import Base
 
 
-class BehaviorProfile(Base):
+class UserProfile(Base):
 
-    __tablename__ = "behavior_profiles"
+    __tablename__ = "user_profiles"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
 
     user_id = Column(
         Integer,
@@ -21,13 +25,15 @@ class BehaviorProfile(Base):
         unique=True
     )
 
-    avg_hold_time = Column(Float)
+    hold_mean = Column(Float)
+    hold_std = Column(Float)
 
-    avg_flight_time = Column(Float)
+    flight_mean = Column(Float)
+    flight_std = Column(Float)
 
-    avg_duration = Column(Float)
+    total_duration = Column(Float)
 
-    avg_backspaces = Column(Float)
+    backspaces = Column(Float)
 
     created_at = Column(
         DateTime,

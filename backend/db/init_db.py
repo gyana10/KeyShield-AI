@@ -2,8 +2,8 @@ from backend.db.database import engine
 from backend.db.models import Base
 from backend.db.models import User
 from backend.db.enrollment_model import Enrollment
-from backend.db.profile_model import BehaviorProfile
 from backend.db.authentication_log import AuthenticationLog
+from backend.db.profile_model import UserProfile
 
 Base.metadata.create_all(bind=engine)
 
