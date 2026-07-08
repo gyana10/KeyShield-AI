@@ -1,47 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-import json
+profile_data = create_profile(data)
 
-from backend.db.database import get_db
-from backend.db.models import User
-from backend.db.enrollment_model import Enrollment
-from backend.core.dependencies import get_current_email
+existing_profile = db.query(UserProfile).filter(
+    UserProfile.user_id == user.id
+).first()
 
-router = APIRouter()
+if existing_profile:
+    existing_profile.hold_mean = profile_data["hold_mean"]
+    existing_profile.hold_std = profile_data["hold_std"]
 
+    existing_profile.flight_mean = profile_data["flight_mean"]
+    existing_profile.flight_std = profile_data["flight_std"]
 
-@router.post("/enroll")
-def enroll(
-    data: dict,
-    email: str = Depends(get_current_email),
-    db: Session = Depends(get_db)
-):
+    existing_profile.total_duration = profile_data["total_duration"]
+    existing_profile.backspaces = profile_data["backspaces"]
 
-    user = db.query(User).filter(
-        User.email == email
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found"
-        )
-
-    enrollment = Enrollment(
+else:
+    profile = UserProfile(
         user_id=user.id,
-        hold_times=json.dumps(data["holdTimes"]),
-        flight_times=json.dumps(data["flightTimes"]),
-        total_duration=data["totalDuration"],
-        backspaces=data["backspaces"]
+        **profile_data
     )
 
-    db.add(enrollment)
-    db.commit()
-    db.refresh(enrollment)
+    db.add(profile)
 
-    return {
-        "message": "Enrollment Saved Successfully",
-        "user_id": user.id,
-        "username": user.username,
-        "enrollment_id": enrollment.id
-    }
+db.commit()
