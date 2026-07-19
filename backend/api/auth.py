@@ -1,23 +1,21 @@
 import re
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
 from backend.db.database import get_db
 from backend.db.models import User
-from backend.db.schemas import UserRegister, UserLogin, Token, UserResponse
+from backend.db.schemas import UserRegister, UserLogin, Token
 from backend.core.security import (
     hash_password,
     verify_password,
     create_access_token,
 )
+from backend.core.rate_limiter import rate_limit
 
 router = APIRouter(prefix="", tags=["Authentication"])
 
 
 def validate_password_complexity(password: str):
-    """
-    Validates password strength: min 8 characters, at least 1 uppercase, 1 lowercase, 1 digit.
-    """
     if len(password) < 8:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -40,12 +38,11 @@ def validate_password_complexity(password: str):
         )
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED, dependencies=[Depends(rate_limit)])
 def register(
     user_data: UserRegister,
     db: Session = Depends(get_db)
 ):
-    # Check existing email or username
     existing_user = db.query(User).filter(
         (User.email == user_data.email) | (User.username == user_data.username)
     ).first()
@@ -56,7 +53,6 @@ def register(
             detail="Email or Username is already registered."
         )
 
-    # Validate password strength
     validate_password_complexity(user_data.password)
 
     new_user = User(
@@ -76,7 +72,7 @@ def register(
     }
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=Token, dependencies=[Depends(rate_limit)])
 def login(
     user_credentials: UserLogin,
     db: Session = Depends(get_db)
