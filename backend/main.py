@@ -29,13 +29,24 @@ def on_startup():
         print("Database startup initialization warning:", e)
 
 
-# Configurable CORS origins
-allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:8000,http://localhost:8000")
-allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
+# Configurable CORS origins with automatic Vercel wildcard regex support
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+user_origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
+
+default_origins = [
+    "https://key-shield-ai.vercel.app",
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000"
+]
+
+origins = list(set(user_origins + default_origins))
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins or ["*"],
+    allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
