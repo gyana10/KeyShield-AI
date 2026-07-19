@@ -1,12 +1,11 @@
-from backend.db.database import engine
-from backend.db.models import Base
-from backend.db.models import User
-from backend.db.enrollment_model import Enrollment
-from backend.db.authentication_log import AuthenticationLog
-from backend.db.profile_model import UserProfile
+from backend.db.database import engine, Base
+import backend.db.models  # Ensures all models are registered with Base.metadata
 
-Base.metadata.create_all(bind=engine)
+def init_db():
+    Base.metadata.create_all(bind=engine)
+    print("=" * 60)
+    print("KeyShield AI Database Initialized Successfully")
+    print("=" * 60)
 
-print("=" * 50)
-print("Database Initialized Successfully")
-print("=" * 50)
+if __name__ == "__main__":
+    init_db()
