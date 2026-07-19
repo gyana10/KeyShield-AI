@@ -3,84 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KeyShield AI - Behavioral Biometric Authentication Platform</title>
-    <meta name="description" content="AI Behavioral Biometric Authentication System powered by Stacking Ensemble ML and Tree SHAP Explainable AI.">
+    <title>KeyShield AI - Continuous Behavioral Biometrics</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header class="navbar">
+    <nav class="navbar">
         <a href="index.html" class="brand">
             <div class="brand-icon">🛡️</div>
             <span>KeyShield AI</span>
         </a>
-        <nav>
-            <ul class="nav-links" id="nav-links">
-                <li><a href="index.html" class="active">Home</a></li>
-                <li><a href="enroll.html">Enrollment</a></li>
-                <li><a href="authenticate.html">Authenticate</a></li>
-                <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="login.html" class="btn btn-secondary" id="login-nav-btn">Login</a></li>
-                <li><a href="register.html" class="btn btn-primary" id="register-nav-btn">Register</a></li>
-            </ul>
-        </nav>
-    </header>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="authenticate.html">Biometrics Test</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+        </ul>
+    </nav>
 
-    <main class="container">
-        <!-- Hero Section -->
-        <section style="text-align: center; padding: 4rem 1rem; max-width: 800px; margin: 0 auto;">
-            <div class="badge badge-low" style="margin-bottom: 1rem;">🚀 Production AI Biometrics Engine</div>
-            <h1 style="font-size: 3rem; font-weight: 800; line-height: 1.15; margin-bottom: 1.25rem;">
-                Continuous Behavioral Biometric Authentication
-            </h1>
-            <p style="font-size: 1.15rem; color: var(--text-muted); margin-bottom: 2rem;">
-                KeyShield AI verifies user identity based on micro-timing dynamics during typing. Powered by a Stacking Ensemble ML pipeline (Isolation Forest, Random Forest, XGBoost, LightGBM) and Tree SHAP Explainability.
+    <div class="container">
+        <!-- Apple Hero Section -->
+        <section class="hero">
+            <span class="hero-tag">AI Behavioral Biometrics Engine</span>
+            <h1 class="hero-title">Continuous Identity Verification.</h1>
+            <p class="hero-subtitle">
+                KeyShield AI continuously verifies user identity based on micro-timing dynamics during typing. Powered by an Out-Of-Fold Stacking Ensemble ML Pipeline and Tree SHAP Explainability.
             </p>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="register.html" class="btn btn-primary" style="padding: 0.85rem 2rem; font-size: 1rem;">Get Started</a>
-                <a href="dashboard.html" class="btn btn-secondary" style="padding: 0.85rem 2rem; font-size: 1rem;">Live Dashboard</a>
+            <div class="hero-actions">
+                <a href="authenticate.html" class="btn btn-primary">Test Biometrics</a>
+                <a href="profile.html" class="btn btn-secondary">View Profile</a>
+                <a href="dashboard.html" class="btn btn-secondary">Live Dashboard</a>
             </div>
         </section>
 
         <!-- Feature Cards -->
-        <section class="grid-3" style="margin-top: 3rem;">
+        <div class="grid-3" style="margin-top: 3rem;">
             <div class="glass-card">
-                <div style="font-size: 2rem; margin-bottom: 1rem;">🧠</div>
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">Stacking Ensemble ML</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">
-                    Combines Isolation Forest anomaly detection with Random Forest, XGBoost, and LightGBM base models fed into a Logistic Regression meta-learner using 5-Fold OOF validation.
+                <div style="font-size: 2.2rem; margin-bottom: 1rem;">⚡</div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Stacking Ensemble ML</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                    Combines Isolation Forest anomaly detection with Random Forest, XGBoost, and LightGBM base models fed into a Logistic Regression meta-learner (**92.09% Acc, 0.9302 ROC-AUC**).
                 </p>
             </div>
 
             <div class="glass-card">
-                <div style="font-size: 2rem; margin-bottom: 1rem;">🔍</div>
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">Tree SHAP Explainability</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">
-                    Provides local and global feature importance explanations for every authentication attempt, revealing why an attempt was approved or flagged.
+                <div style="font-size: 2.2rem; margin-bottom: 1rem;">🔍</div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Tree SHAP Explainability</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                    Provides local and global feature attribution explanations for every authentication attempt, revealing why an attempt was approved or flagged.
                 </p>
             </div>
 
             <div class="glass-card">
-                <div style="font-size: 2rem; margin-bottom: 1rem;">⚡</div>
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem;">Adaptive Profiling</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">
-                    Multi-sample enrollment baseline with Exponential Moving Average (EMA) profile updates and real-time behavior drift detection.
+                <div style="font-size: 2.2rem; margin-bottom: 1rem;">📊</div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Adaptive Profiling</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                    Multi-sample baseline enrollment with Exponential Moving Average (EMA) profile updates and real-time behavior drift detection.
                 </p>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 
     <footer>
-        <p>KeyShield AI &copy; 2026. Built with FastAPI, PostgreSQL, Scikit-Learn, XGBoost, LightGBM & SHAP.</p>
+        KeyShield AI &copy; 2026 — Apple-Inspired Behavioral Biometric Authentication Platform
     </footer>
 
     <script src="js/api.js"></script>
-    <script>
-        // Check session auth state
-        if (ApiClient.getToken()) {
-            document.getElementById("login-nav-btn").style.display = "none";
-            document.getElementById("register-nav-btn").textContent = "Dashboard";
-            document.getElementById("register-nav-btn").href = "dashboard.html";
-        }
-    </script>
 </body>
 </html>

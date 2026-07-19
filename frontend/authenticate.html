@@ -7,28 +7,27 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header class="navbar">
+    <nav class="navbar">
         <a href="index.html" class="brand">
             <div class="brand-icon">🛡️</div>
             <span>KeyShield AI</span>
         </a>
-        <nav>
-            <ul class="nav-links">
-                <li><a href="enroll.html">Enrollment</a></li>
-                <li><a href="authenticate.html" class="active">Authenticate</a></li>
-                <li><a href="dashboard.html">Dashboard</a></li>
-            </ul>
-        </nav>
-    </header>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="authenticate.html" class="active">Biometrics Test</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+        </ul>
+    </nav>
 
     <main class="container" style="max-width: 840px;">
         <div class="glass-card">
-            <h2>Biometric Verification Test</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.02em;">Biometric Verification Test</h2>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">
                 Type the verification phrase below to test continuous biometrics classification via the Stacking Ensemble ML engine and Tree SHAP.
             </p>
 
-            <div id="alert-box" style="display: none; padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
+            <div id="alert-box" style="display: none; padding: 0.75rem; border-radius: var(--radius-input); font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
 
             <div class="typing-box" id="typing-container">
                 <div class="phrase-display">keyshield authentication dynamics</div>
@@ -44,7 +43,7 @@
         <!-- Result Card -->
         <div id="result-card" class="glass-card" style="margin-top: 1.5rem; display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="font-size: 1.25rem;">Authentication Decision</h3>
+                <h3 style="font-size: 1.25rem; font-weight: 600;">Authentication Decision</h3>
                 <div id="risk-badge" class="badge"></div>
             </div>
 
@@ -67,9 +66,9 @@
                 </div>
             </div>
 
-            <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
-                <h4 style="font-size: 0.95rem; color: var(--primary); margin-bottom: 0.5rem;">Tree SHAP Explainability Output</h4>
-                <p id="res-shap-text" style="font-size: 0.9rem; color: var(--text-main); line-height: 1.5;"></p>
+            <div style="background: rgba(0,0,0,0.5); border-radius: var(--radius-input); padding: 1.25rem; margin-bottom: 1rem; border: 1px solid var(--border-apple);">
+                <h4 style="font-size: 0.95rem; color: var(--apple-blue); margin-bottom: 0.5rem; font-weight: 600;">Tree SHAP Explainability Output</h4>
+                <p id="res-shap-text" style="font-size: 0.9rem; color: var(--text-primary); line-height: 1.5;"></p>
             </div>
 
             <div style="text-align: right;">
@@ -79,7 +78,7 @@
     </main>
 
     <footer>
-        <p>KeyShield AI &copy; 2026</p>
+        KeyShield AI &copy; 2026 — Apple-Inspired Behavioral Biometric Authentication Platform
     </footer>
 
     <script src="js/api.js"></script>

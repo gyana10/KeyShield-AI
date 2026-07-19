@@ -9,32 +9,30 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <header class="navbar">
+    <nav class="navbar">
         <a href="index.html" class="brand">
             <div class="brand-icon">🛡️</div>
             <span>KeyShield AI</span>
         </a>
-        <nav>
-            <ul class="nav-links">
-                <li><a href="enroll.html">Enrollment</a></li>
-                <li><a href="authenticate.html">Authenticate</a></li>
-                <li><a href="dashboard.html" class="active">Dashboard</a></li>
-                <li><button id="logout-btn" class="btn btn-secondary" style="padding: 0.4rem 0.9rem; font-size: 0.85rem;">Logout</button></li>
-            </ul>
-        </nav>
-    </header>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="authenticate.html">Biometrics Test</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="dashboard.html" class="active">Dashboard</a></li>
+        </ul>
+    </nav>
 
     <main class="container">
         <!-- Dashboard Header -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
             <div>
-                <h1 style="font-size: 1.85rem; font-weight: 700;">Biometrics Analytics Dashboard</h1>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+                <h1 style="font-size: 1.85rem; font-weight: 700; letter-spacing: -0.02em;">Biometrics Analytics Dashboard</h1>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">
                     Real-time monitoring of behavioral biometrics, stacking ensemble predictions, and SHAP explainability.
                 </p>
             </div>
             <div style="display: flex; gap: 0.75rem;">
-                <a href="authenticate.html" class="btn btn-primary">+ Test Authentication</a>
+                <a href="authenticate.html" class="btn btn-primary">+ Test Biometrics</a>
             </div>
         </div>
 
@@ -46,15 +44,15 @@
             </div>
             <div class="glass-card stat-card">
                 <span class="stat-label">Pass Rate</span>
-                <span id="stat-pass-rate" class="stat-value" style="color: var(--success);">0%</span>
+                <span id="stat-pass-rate" class="stat-value" style="color: var(--apple-green);">0%</span>
             </div>
             <div class="glass-card stat-card">
                 <span class="stat-label">Avg Similarity</span>
-                <span id="stat-avg-sim" class="stat-value" style="color: var(--primary);">0%</span>
+                <span id="stat-avg-sim" class="stat-value" style="color: var(--apple-blue);">0%</span>
             </div>
             <div class="glass-card stat-card">
                 <span class="stat-label">Behavior Drift Status</span>
-                <span id="stat-drift" class="stat-value" style="font-size: 1.15rem; color: var(--secondary);">STABLE</span>
+                <span id="stat-drift" class="stat-value" style="font-size: 1.15rem; color: var(--apple-purple);">STABLE</span>
             </div>
         </section>
 
@@ -62,7 +60,7 @@
         <section class="grid-2" style="margin-bottom: 2rem;">
             <!-- Chart 1: Radar Chart -->
             <div class="glass-card">
-                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Profile Baseline vs Recent Attempt (Radar)</h3>
+                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Profile Baseline vs Recent Attempt (Radar)</h3>
                 <div style="position: relative; height: 280px;">
                     <canvas id="radarChart"></canvas>
                 </div>
@@ -70,7 +68,7 @@
 
             <!-- Chart 2: Similarity Gauge / Donut -->
             <div class="glass-card">
-                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Biometric Similarity & Risk Distribution</h3>
+                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Biometric Similarity & Risk Distribution</h3>
                 <div style="position: relative; height: 280px;">
                     <canvas id="donutChart"></canvas>
                 </div>
@@ -80,7 +78,7 @@
         <section class="grid-2" style="margin-bottom: 2rem;">
             <!-- Chart 3: History Timeline -->
             <div class="glass-card">
-                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Authentication Timeline (Similarity & Confidence)</h3>
+                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Authentication Timeline (Similarity & Confidence)</h3>
                 <div style="position: relative; height: 280px;">
                     <canvas id="timelineChart"></canvas>
                 </div>
@@ -88,7 +86,7 @@
 
             <!-- Chart 4: SHAP Feature Importance -->
             <div class="glass-card">
-                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Global Tree SHAP Feature Importance</h3>
+                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Global Tree SHAP Feature Importance</h3>
                 <div style="position: relative; height: 280px;">
                     <canvas id="shapChart"></canvas>
                 </div>
@@ -98,7 +96,7 @@
         <!-- Chart 5: Model Comparison Performance -->
         <section style="margin-bottom: 2rem;">
             <div class="glass-card">
-                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Stacking Ensemble Base Models Benchmark Metrics</h3>
+                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Stacking Ensemble Base Models Benchmark Metrics</h3>
                 <div style="position: relative; height: 300px;">
                     <canvas id="modelCompChart"></canvas>
                 </div>
@@ -107,7 +105,7 @@
 
         <!-- Authentication Log History Table -->
         <section class="glass-card">
-            <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Authentication History Logs</h3>
+            <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Authentication History Logs</h3>
             <div class="table-container">
                 <table>
                     <thead>
@@ -124,7 +122,7 @@
                     </thead>
                     <tbody id="history-table-body">
                         <tr>
-                            <td colspan="8" style="text-align: center; color: var(--text-dim);">Loading logs...</td>
+                            <td colspan="8" style="text-align: center; color: var(--text-tertiary);">Loading logs...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -133,7 +131,7 @@
     </main>
 
     <footer>
-        <p>KeyShield AI &copy; 2026</p>
+        KeyShield AI &copy; 2026 — Apple-Inspired Behavioral Biometric Authentication Platform
     </footer>
 
     <script src="js/api.js"></script>
