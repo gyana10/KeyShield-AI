@@ -31,26 +31,34 @@ FEATURE_DESCRIPTIONS = {
 }
 
 
+def _safe_get_feature(obj, key, default=0.0):
+    if obj is None:
+        return default
+    if isinstance(obj, dict):
+        return float(obj.get(key, default))
+    try:
+        val = getattr(obj, key, default)
+        return float(val) if val is not None else default
+    except Exception:
+        return default
+
+
 class KeyShieldExplainer:
     def __init__(self, models_dir="backend/ml/models"):
         self.models_dir = models_dir
         self.rf_model = joblib.load(os.path.join(models_dir, "random_forest.pkl"))
         self.xgb_model = joblib.load(os.path.join(models_dir, "xgboost.pkl"))
         self.scaler = joblib.load(os.path.join(models_dir, "scaler.pkl"))
-
-        # Initialize TreeExplainer for Random Forest
         self.rf_explainer = shap.TreeExplainer(self.rf_model)
 
     def explain_sample(self, features, profile=None):
-        """
-        Generate local SHAP feature importances and natural language explanation.
-        """
         diff_vector = []
         for feat in FEATURE_NAMES:
             val = float(features.get(feat, 0.0))
             if profile:
-                prof_val = getattr(profile, feat, 0.0) if hasattr(profile, feat) else float(profile.get(feat, 0.0))
-                std_val = getattr(profile, feat.replace("mean", "std"), 0.05) if hasattr(profile, feat.replace("mean", "std")) else float(profile.get(feat.replace("mean", "std"), 0.05))
+                prof_val = _safe_get_feature(profile, feat, 0.0)
+                std_key = feat.replace("mean", "std").replace("min", "std").replace("max", "std")
+                std_val = _safe_get_feature(profile, std_key, 0.05)
                 if std_val <= 0:
                     std_val = 0.05
                 diff = abs(val - prof_val) / std_val
@@ -61,22 +69,18 @@ class KeyShieldExplainer:
         X_input = np.array([diff_vector])
         X_scaled = self.scaler.transform(X_input)
 
-        # Compute SHAP values for class 1 (Genuine)
         raw_shap = self.rf_explainer.shap_values(X_scaled)
         if isinstance(raw_shap, list):
-            # Binary classification: [class_0, class_1]
             shap_vals = raw_shap[1][0]
         elif isinstance(raw_shap, np.ndarray) and raw_shap.ndim == 3:
             shap_vals = raw_shap[0, :, 1]
         else:
             shap_vals = raw_shap[0]
 
-        # Convert to dictionary mapping feature -> SHAP contribution score
         local_contributions = {}
-        for feat, val in zip(FEATURE_NAMES, shap_vals):
-            local_contributions[feat] = round(float(val), 4)
+        for feat, v in zip(FEATURE_NAMES, shap_vals):
+            local_contributions[feat] = round(float(v), 4)
 
-        # Sort features by absolute contribution impact
         sorted_feats = sorted(
             local_contributions.items(),
             key=lambda x: abs(x[1]),
@@ -86,7 +90,6 @@ class KeyShieldExplainer:
         top_positive = [f for f, v in sorted_feats if v > 0][:2]
         top_negative = [f for f, v in sorted_feats if v < 0][:2]
 
-        # Construct human-readable natural language text explanation
         explanations_text = []
         if top_positive:
             pos_names = [FEATURE_DESCRIPTIONS.get(f, f) for f in top_positive]
@@ -101,7 +104,6 @@ class KeyShieldExplainer:
 
         text_summary = " ".join(explanations_text) if explanations_text else "Keystroke pattern closely matches baseline."
 
-        # Global feature importance baseline from Random Forest feature importances
         global_importance = {}
         for feat, imp in zip(FEATURE_NAMES, self.rf_model.feature_importances_):
             global_importance[feat] = round(float(imp), 4)
