@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
+from backend.db.init_db import init_db
 from backend.api.auth import router as auth_router
 from backend.api.enrollment import router as enroll_router
 from backend.api.authenticate import router as authenticate_router
@@ -18,6 +19,15 @@ app = FastAPI(
     description="AI Behavioral Biometric Authentication System powered by Stacking Ensemble & Tree SHAP Explainability",
     version="1.0.0"
 )
+
+# Initialize database schema safely on startup
+@app.on_event("startup")
+def on_startup():
+    try:
+        init_db()
+    except Exception as e:
+        print("Database startup initialization warning:", e)
+
 
 # Configurable CORS origins
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:8000,http://localhost:8000")
