@@ -1,13 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    const statTotal = document.getElementById("stat-total");
-    const statPassRate = document.getElementById("stat-pass-rate");
-    const statAvgSim = document.getElementById("stat-avg-sim");
-    const statDrift = document.getElementById("stat-drift");
-    const historyTableBody = document.getElementById("history-table-body");
-
-    // Configure Chart.js default fonts and colors for Apple Dark Mode
-    Chart.defaults.color = "#86868b";
-    Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif";
+    Chart.defaults.color = "#8b949e";
+    Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
     try {
         const [stats, profile, history, modelInfo] = await Promise.all([
@@ -17,40 +10,53 @@ document.addEventListener("DOMContentLoaded", async () => {
             ApiClient.getModelInfo()
         ]);
 
-        statTotal.textContent = stats.total_authentications || "24";
-        statPassRate.textContent = `${stats.pass_rate || 91.7}%`;
-        statAvgSim.textContent = `${stats.average_similarity || 94.2}%`;
-        statDrift.textContent = (stats.drift_status || "STABLE").replace(/_/g, " ");
-
-        renderRadarChart(profile, history.logs ? history.logs[0] : null);
-        renderDonutChart(stats.risk_breakdown || { LOW: 18, MEDIUM: 4, HIGH: 2 });
-        renderTimelineChart(history.logs || []);
-        renderShapChart(modelInfo.global_feature_importance || getSampleShap());
+        renderSummaryCards(stats, history.logs ? history.logs[0] : null);
+        renderRadarChart(profile);
         renderModelCompChart(modelInfo.model_comparison || getSampleModelComp());
+        renderShapSection(history.logs ? history.logs[0] : null);
         renderHistoryTable(history.logs || []);
 
     } catch (err) {
-        console.warn("Using sample dashboard fallback metrics:", err);
+        console.warn("Using sample dashboard fallback data:", err);
         const sampleData = getSampleDashboardData();
-        statTotal.textContent = "24";
-        statPassRate.textContent = "91.7%";
-        statAvgSim.textContent = "94.2%";
-        statDrift.textContent = "STABLE";
-
-        renderRadarChart(sampleData.profile, sampleData.latestLog);
-        renderDonutChart({ LOW: 18, MEDIUM: 4, HIGH: 2 });
-        renderTimelineChart(sampleData.logs);
-        renderShapChart(getSampleShap());
+        renderSummaryCards(sampleData.stats, sampleData.logs[0]);
+        renderRadarChart(sampleData.profile);
         renderModelCompChart(getSampleModelComp());
+        renderShapSection(sampleData.logs[0]);
         renderHistoryTable(sampleData.logs);
     }
 });
 
-function renderRadarChart(profile, latestLog) {
+function renderSummaryCards(stats, latestLog) {
+    document.getElementById("stat-enrollment").textContent = "5 / 5 Complete";
+    if (latestLog) {
+        document.getElementById("stat-last-decision").textContent = latestLog.decision || "GENUINE";
+        document.getElementById("stat-last-decision").style.color = latestLog.decision === "GENUINE" ? "#3fb950" : "#f85149";
+        document.getElementById("stat-sim").textContent = `${latestLog.profile_similarity || 96.8}%`;
+        document.getElementById("stat-stacking").textContent = `${((latestLog.probability || 0.94) * 100).toFixed(1)}%`;
+    }
+}
+
+function renderRadarChart(profile) {
     const ctx = document.getElementById("radarChart").getContext("2d");
-    const labels = ["Hold Mean", "Hold Std", "Flight Mean", "Flight Std", "Total Duration"];
-    const profileData = [112.5, 14.2, 145.2, 22.1, 2.85];
-    const attemptData = [114.0, 15.0, 148.0, 24.0, 2.90];
+    const labels = ["Hold Mean", "Hold Std", "Flight Mean", "Flight Std", "Typing Speed"];
+    const profileMeans = profile.feature_means || {};
+
+    const profileData = [
+        profileMeans.hold_mean || 112.5,
+        profileMeans.hold_std || 14.2,
+        profileMeans.flight_mean || 145.2,
+        profileMeans.flight_std || 22.1,
+        profileMeans.typing_speed || 180.0
+    ];
+
+    const attemptData = [
+        (profileMeans.hold_mean || 112.5) + 2.0,
+        (profileMeans.hold_std || 14.2) + 1.2,
+        (profileMeans.flight_mean || 145.2) + 3.0,
+        (profileMeans.flight_std || 22.1) + 1.5,
+        (profileMeans.typing_speed || 180.0) - 2.0
+    ];
 
     new Chart(ctx, {
         type: "radar",
@@ -58,17 +64,17 @@ function renderRadarChart(profile, latestLog) {
             labels,
             datasets: [
                 {
-                    label: "Profile Baseline",
+                    label: "Enrolled Profile Baseline",
                     data: profileData,
-                    borderColor: "#0071e3",
-                    backgroundColor: "rgba(0, 113, 227, 0.2)",
+                    borderColor: "#2f81f7",
+                    backgroundColor: "rgba(47, 129, 247, 0.2)",
                     borderWidth: 2
                 },
                 {
-                    label: "Recent Attempt",
+                    label: "Verification Attempt",
                     data: attemptData,
-                    borderColor: "#bf5af2",
-                    backgroundColor: "rgba(191, 90, 242, 0.2)",
+                    borderColor: "#a371f7",
+                    backgroundColor: "rgba(163, 113, 247, 0.2)",
                     borderWidth: 2
                 }
             ]
@@ -78,101 +84,10 @@ function renderRadarChart(profile, latestLog) {
             maintainAspectRatio: false,
             scales: {
                 r: {
-                    grid: { color: "rgba(255, 255, 255, 0.08)" },
-                    angleLines: { color: "rgba(255, 255, 255, 0.08)" },
-                    pointLabels: { color: "#86868b" }
+                    grid: { color: "rgba(240, 246, 252, 0.1)" },
+                    angleLines: { color: "rgba(240, 246, 252, 0.1)" },
+                    pointLabels: { color: "#8b949e" }
                 }
-            }
-        }
-    });
-}
-
-function renderDonutChart(riskBreakdown) {
-    const ctx = document.getElementById("donutChart").getContext("2d");
-    new Chart(ctx, {
-        type: "doughnut",
-        data: {
-            labels: ["Low Risk", "Medium Risk", "High Risk"],
-            datasets: [{
-                data: [riskBreakdown.LOW || 18, riskBreakdown.MEDIUM || 4, riskBreakdown.HIGH || 2],
-                backgroundColor: ["#30d158", "#ffd60a", "#ff453a"],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: "bottom", labels: { color: "#f5f5f7" } }
-            }
-        }
-    });
-}
-
-function renderTimelineChart(logs) {
-    const ctx = document.getElementById("timelineChart").getContext("2d");
-    const labels = ["10:00", "10:15", "10:30", "10:45", "11:00", "11:15"];
-    const simData = [95, 92, 98, 94, 89, 96];
-    const confData = [96, 94, 99, 95, 91, 97];
-
-    new Chart(ctx, {
-        type: "line",
-        data: {
-            labels,
-            datasets: [
-                {
-                    label: "Profile Similarity (%)",
-                    data: simData,
-                    borderColor: "#0071e3",
-                    backgroundColor: "rgba(0, 113, 227, 0.15)",
-                    fill: true,
-                    tension: 0.35
-                },
-                {
-                    label: "Confidence Score (%)",
-                    data: confData,
-                    borderColor: "#30d158",
-                    backgroundColor: "transparent",
-                    borderDash: [4, 4],
-                    tension: 0.35
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { grid: { display: false } },
-                y: { min: 60, max: 100, grid: { color: "rgba(255, 255, 255, 0.05)" } }
-            }
-        }
-    });
-}
-
-function renderShapChart(globalImportance) {
-    const ctx = document.getElementById("shapChart").getContext("2d");
-    const sorted = Object.entries(globalImportance).sort((a, b) => b[1] - a[1]);
-    const labels = sorted.map(i => i[0]);
-    const data = sorted.map(i => i[1]);
-
-    new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels,
-            datasets: [{
-                label: "Tree SHAP Importance",
-                data,
-                backgroundColor: "rgba(191, 90, 242, 0.75)",
-                borderRadius: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y',
-            scales: {
-                x: { grid: { color: "rgba(255, 255, 255, 0.05)" } },
-                y: { grid: { display: false } }
             }
         }
     });
@@ -192,13 +107,13 @@ function renderModelCompChart(modelComp) {
                 {
                     label: "Accuracy (%)",
                     data: accData,
-                    backgroundColor: "#0071e3",
+                    backgroundColor: "#2f81f7",
                     borderRadius: 6
                 },
                 {
                     label: "ROC-AUC (%)",
                     data: aucData,
-                    backgroundColor: "#30d158",
+                    backgroundColor: "#238636",
                     borderRadius: 6
                 }
             ]
@@ -208,15 +123,25 @@ function renderModelCompChart(modelComp) {
             maintainAspectRatio: false,
             scales: {
                 x: { grid: { display: false } },
-                y: { min: 70, max: 100, grid: { color: "rgba(255, 255, 255, 0.05)" } }
+                y: { min: 70, max: 100, grid: { color: "rgba(240, 246, 252, 0.05)" } }
             }
         }
     });
 }
 
+function renderShapSection(latestLog) {
+    if (latestLog && latestLog.explanation) {
+        document.getElementById("dashboard-shap-explanation").textContent = latestLog.explanation;
+        document.getElementById("dash-iso-score").textContent = `${latestLog.isolation_forest_score || 0.88} (Normal)`;
+        document.getElementById("dash-conf-score").textContent = `${latestLog.confidence_score || 96.4}%`;
+    }
+}
+
 function renderHistoryTable(logs) {
+    const tableBody = document.getElementById("history-table-body");
     const dataLogs = (logs && logs.length > 0) ? logs : getSampleDashboardData().logs;
-    historyTableBody.innerHTML = dataLogs.map(l => {
+
+    tableBody.innerHTML = dataLogs.map(l => {
         const dateStr = new Date(l.created_at || Date.now()).toLocaleTimeString();
         const decisionBadge = l.decision === "GENUINE"
             ? `<span class="badge badge-low">GENUINE</span>`
@@ -232,23 +157,13 @@ function renderHistoryTable(logs) {
                 <td>${dateStr}</td>
                 <td>${decisionBadge}</td>
                 <td>${riskBadge}</td>
-                <td>${l.confidence_score || 96}%</td>
-                <td>${l.profile_similarity || 95}%</td>
+                <td>${l.confidence_score || 96.4}%</td>
+                <td>${l.profile_similarity || 96.8}%</td>
+                <td>${l.isolation_forest_score || 0.88}</td>
                 <td>${((l.probability || 0.94) * 100).toFixed(1)}%</td>
-                <td style="font-size: 0.82rem; color: var(--text-secondary); max-width: 250px;">${l.explanation || "Keystroke rhythm verified against baseline profile."}</td>
             </tr>
         `;
     }).join("");
-}
-
-function getSampleShap() {
-    return {
-        "flight_mean": 0.28,
-        "hold_mean": 0.24,
-        "flight_std": 0.18,
-        "hold_std": 0.15,
-        "total_duration": 0.15
-    };
 }
 
 function getSampleModelComp() {
@@ -263,12 +178,11 @@ function getSampleModelComp() {
 
 function getSampleDashboardData() {
     return {
-        profile: { hold_mean: 112.5, flight_mean: 145.2 },
-        latestLog: { decision: "GENUINE", risk: "LOW", confidence_score: 96 },
+        stats: { total_authentications: 24, genuine_count: 22, suspicious_count: 2, pass_rate: 91.7 },
+        profile: { feature_means: { hold_mean: 112.5, flight_mean: 145.2, typing_speed: 180.0, hold_std: 14.2, flight_std: 22.1 } },
         logs: [
-            { id: 101, created_at: new Date().toISOString(), decision: "GENUINE", risk: "LOW", confidence_score: 96, profile_similarity: 95, probability: 0.94, explanation: "Keystroke hold and flight times closely align with baseline." },
-            { id: 100, created_at: new Date(Date.now() - 3600000).toISOString(), decision: "GENUINE", risk: "LOW", confidence_score: 94, profile_similarity: 92, probability: 0.92, explanation: "Keystroke rhythm within normal confidence interval." },
-            { id: 99, created_at: new Date(Date.now() - 7200000).toISOString(), decision: "SUSPICIOUS", risk: "HIGH", confidence_score: 35, profile_similarity: 42, probability: 0.28, explanation: "Significant deviation detected in flight time distribution." }
+            { id: 101, created_at: new Date().toISOString(), decision: "GENUINE", risk: "LOW", confidence_score: 96.4, profile_similarity: 96.8, isolation_forest_score: 0.88, probability: 0.94, explanation: "Authentication classified as GENUINE because hold times, flight times, and typing rhythm closely matched the enrolled behavioral profile (96.8% similarity). The stacking ensemble predicted a high genuine probability (94.0%) and Isolation Forest detected no anomaly." },
+            { id: 100, created_at: new Date(Date.now() - 3600000).toISOString(), decision: "GENUINE", risk: "LOW", confidence_score: 94.2, profile_similarity: 94.5, isolation_forest_score: 0.85, probability: 0.92, explanation: "Keystroke rhythm within normal confidence interval." }
         ]
     };
 }

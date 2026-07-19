@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biometrics Dashboard - KeyShield AI</title>
+    <title>Biometrics Analytics Dashboard - KeyShield AI</title>
     <link rel="stylesheet" href="css/style.css">
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="navbar">
         <a href="index.html" class="brand">
-            <div class="brand-icon">🛡️</div>
+            <div class="brand-icon">KS</div>
             <span>KeyShield AI</span>
         </a>
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
+            <li><a href="enroll.html">Enrollment</a></li>
             <li><a href="authenticate.html">Biometrics Test</a></li>
-            <li><a href="profile.html">Profile</a></li>
             <li><a href="dashboard.html" class="active">Dashboard</a></li>
         </ul>
     </nav>
@@ -26,86 +25,112 @@
         <!-- Dashboard Header -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
             <div>
-                <h1 style="font-size: 1.85rem; font-weight: 700; letter-spacing: -0.02em;">Biometrics Analytics Dashboard</h1>
+                <h1 style="font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em;">Behavioral Biometrics Security Dashboard</h1>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">
-                    Real-time monitoring of behavioral biometrics, stacking ensemble predictions, and SHAP explainability.
+                    Real-time monitoring of 4-layer verification decisions, behavioral profile baseline, and Tree SHAP attributions.
                 </p>
             </div>
             <div style="display: flex; gap: 0.75rem;">
-                <a href="authenticate.html" class="btn btn-primary">+ Test Biometrics</a>
+                <a href="enroll.html" class="btn btn-secondary">Enroll Baseline (5 Samples)</a>
+                <a href="authenticate.html" class="btn btn-primary">+ Test Verification</a>
             </div>
         </div>
 
-        <!-- Summary Stat Cards -->
+        <!-- Enrollment & Verification Summary Cards -->
         <section class="grid-4" style="margin-bottom: 2rem;">
-            <div class="glass-card stat-card">
-                <span class="stat-label">Total Auth Attempts</span>
-                <span id="stat-total" class="stat-value">0</span>
+            <div class="card stat-card">
+                <span class="stat-label">Enrollment Progress</span>
+                <span id="stat-enrollment" class="stat-value" style="color: #3fb950;">5 / 5 Complete</span>
             </div>
-            <div class="glass-card stat-card">
-                <span class="stat-label">Pass Rate</span>
-                <span id="stat-pass-rate" class="stat-value" style="color: var(--apple-green);">0%</span>
+            <div class="card stat-card">
+                <span class="stat-label">Last Verification Result</span>
+                <span id="stat-last-decision" class="stat-value" style="color: #3fb950;">GENUINE</span>
             </div>
-            <div class="glass-card stat-card">
-                <span class="stat-label">Avg Similarity</span>
-                <span id="stat-avg-sim" class="stat-value" style="color: var(--apple-blue);">0%</span>
+            <div class="card stat-card">
+                <span class="stat-label">Profile Similarity (45%)</span>
+                <span id="stat-sim" class="stat-value" style="color: var(--accent-blue);">96.8%</span>
             </div>
-            <div class="glass-card stat-card">
-                <span class="stat-label">Behavior Drift Status</span>
-                <span id="stat-drift" class="stat-value" style="font-size: 1.15rem; color: var(--apple-purple);">STABLE</span>
+            <div class="card stat-card">
+                <span class="stat-label">Stacking Prob (40%)</span>
+                <span id="stat-stacking" class="stat-value" style="color: var(--accent-purple);">94.0%</span>
             </div>
         </section>
 
-        <!-- Main Charts Section -->
+        <!-- Main Analytics Section -->
         <section class="grid-2" style="margin-bottom: 2rem;">
-            <!-- Chart 1: Radar Chart -->
-            <div class="glass-card">
-                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Profile Baseline vs Recent Attempt (Radar)</h3>
-                <div style="position: relative; height: 280px;">
+            <!-- Radar Chart: Profile vs Attempt -->
+            <div class="card">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Behavioral Profile Signature (Radar)</h3>
+                <div style="position: relative; height: 290px;">
                     <canvas id="radarChart"></canvas>
                 </div>
             </div>
 
-            <!-- Chart 2: Similarity Gauge / Donut -->
-            <div class="glass-card">
-                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Biometric Similarity & Risk Distribution</h3>
-                <div style="position: relative; height: 280px;">
-                    <canvas id="donutChart"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <section class="grid-2" style="margin-bottom: 2rem;">
-            <!-- Chart 3: History Timeline -->
-            <div class="glass-card">
-                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Authentication Timeline (Similarity & Confidence)</h3>
-                <div style="position: relative; height: 280px;">
-                    <canvas id="timelineChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Chart 4: SHAP Feature Importance -->
-            <div class="glass-card">
-                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Global Tree SHAP Feature Importance</h3>
-                <div style="position: relative; height: 280px;">
-                    <canvas id="shapChart"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <!-- Chart 5: Model Comparison Performance -->
-        <section style="margin-bottom: 2rem;">
-            <div class="glass-card">
-                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Stacking Ensemble Base Models Benchmark Metrics</h3>
-                <div style="position: relative; height: 300px;">
+            <!-- Stacking Ensemble Model Comparison Chart -->
+            <div class="card">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Stacking Ensemble Base Models Benchmark</h3>
+                <div style="position: relative; height: 290px;">
                     <canvas id="modelCompChart"></canvas>
                 </div>
             </div>
         </section>
 
-        <!-- Authentication Log History Table -->
-        <section class="glass-card">
-            <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Authentication History Logs</h3>
+        <!-- SHAP Explanation & Top Feature Contributions -->
+        <section class="grid-2" style="margin-bottom: 2rem;">
+            <div class="card">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Tree SHAP Natural Language Explanation</h3>
+                <div style="background: rgba(1, 4, 9, 0.8); border-radius: var(--radius-input); padding: 1.25rem; border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                    <p id="dashboard-shap-explanation" style="font-size: 0.92rem; color: var(--text-primary); line-height: 1.6;">
+                        Authentication classified as GENUINE because hold time, flight time, and typing rhythm closely matched the enrolled behavioral profile (96.8% similarity). The stacking ensemble predicted a high genuine probability (94.0%) and Isolation Forest detected no anomaly.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 1.5rem; color: var(--text-secondary); font-size: 0.85rem;">
+                    <div>Isolation Forest Score: <strong id="dash-iso-score" style="color: var(--text-primary);">0.88 (Normal)</strong></div>
+                    <div>Confidence Score: <strong id="dash-conf-score" style="color: #3fb950;">96.4%</strong></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Top SHAP Feature Attributions</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature Name</th>
+                                <th>Contribution %</th>
+                                <th>Influence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shap-table-body">
+                            <tr>
+                                <td>hold_mean</td>
+                                <td>28.5%</td>
+                                <td><span class="badge badge-low">High Support</span></td>
+                            </tr>
+                            <tr>
+                                <td>flight_mean</td>
+                                <td>24.2%</td>
+                                <td><span class="badge badge-low">High Support</span></td>
+                            </tr>
+                            <tr>
+                                <td>rhythm_score</td>
+                                <td>18.3%</td>
+                                <td><span class="badge badge-low">Support</span></td>
+                            </tr>
+                            <tr>
+                                <td>typing_speed</td>
+                                <td>15.0%</td>
+                                <td><span class="badge badge-low">Support</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Authentication History Logs Table -->
+        <section class="card">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Authentication Verification History Logs</h3>
             <div class="table-container">
                 <table>
                     <thead>
@@ -115,14 +140,14 @@
                             <th>Decision</th>
                             <th>Risk</th>
                             <th>Confidence</th>
-                            <th>Similarity</th>
-                            <th>Ensemble Prob</th>
-                            <th>Explanation</th>
+                            <th>Profile Similarity</th>
+                            <th>IsoForest Score</th>
+                            <th>Stacking Prob</th>
                         </tr>
                     </thead>
                     <tbody id="history-table-body">
                         <tr>
-                            <td colspan="8" style="text-align: center; color: var(--text-tertiary);">Loading logs...</td>
+                            <td colspan="8" style="text-align: center; color: var(--text-tertiary);">Loading verification history...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -131,10 +156,10 @@
     </main>
 
     <footer>
-        KeyShield AI &copy; 2026 — Apple-Inspired Behavioral Biometric Authentication Platform
+        KeyShield AI &copy; 2026 — Behavioral Biometrics Verification Engine
     </footer>
 
-    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html>

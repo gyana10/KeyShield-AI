@@ -3,55 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biometric Enrollment - KeyShield AI</title>
+    <title>Behavioral Profile Enrollment - KeyShield AI</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header class="navbar">
+    <nav class="navbar">
         <a href="index.html" class="brand">
-            <div class="brand-icon">🛡️</div>
+            <div class="brand-icon">KS</div>
             <span>KeyShield AI</span>
         </a>
-        <nav>
-            <ul class="nav-links">
-                <li><a href="enroll.html" class="active">Enrollment</a></li>
-                <li><a href="authenticate.html">Authenticate</a></li>
-                <li><a href="dashboard.html">Dashboard</a></li>
-            </ul>
-        </nav>
-    </header>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="enroll.html" class="active">Enrollment</a></li>
+            <li><a href="authenticate.html">Biometrics Test</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+        </ul>
+    </nav>
 
-    <main class="container" style="max-width: 720px;">
-        <div class="glass-card">
+    <main class="container" style="max-width: 860px;">
+        <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2>Behavioral Profile Enrollment</h2>
-                <div id="sample-badge" class="badge badge-medium">Sample 1 of 3</div>
+                <h2 style="font-size: 1.5rem; font-weight: 700;">Behavioral Baseline Enrollment</h2>
+                <div class="badge badge-low" id="sample-progress-badge">Sample 1 of 5</div>
             </div>
-            
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
-                Type the verification phrase below naturally. You must complete at least 3 samples to build your baseline biometric profile.
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
+                To build your 17-feature statistical behavioral profile (mean, std, min, max, median), type the fixed paragraph below <strong>5 separate times</strong> at your natural typing speed.
             </p>
 
-            <div id="alert-box" style="display: none; padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
+            <div id="alert-box" style="display: none; padding: 0.75rem; border-radius: var(--radius-input); font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
 
             <div class="typing-box" id="typing-container">
-                <div class="phrase-display">keyshield authentication dynamics</div>
-                <input type="text" id="typing-input" class="form-control" placeholder="Click here and start typing..." autocomplete="off" spellcheck="false" style="text-align: center; font-size: 1.1rem; letter-spacing: 0.05em;">
+                <div class="phrase-display" id="target-phrase">The quick brown fox jumps over the lazy dog while artificial intelligence continues transforming cybersecurity.</div>
+                <input type="text" id="typing-input" class="form-control" placeholder="Click here and type the exact paragraph..." autocomplete="off" spellcheck="false" style="text-align: center; font-size: 1rem; letter-spacing: 0.02em;">
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
-                <button id="reset-btn" class="btn btn-secondary">Reset Input</button>
-                <button id="submit-sample-btn" class="btn btn-primary" disabled>Submit Sample</button>
+                <button id="reset-btn" class="btn btn-secondary">Reset Sample</button>
+                <button id="submit-sample-btn" class="btn btn-primary" disabled>Submit Sample (1/5)</button>
+            </div>
+        </div>
+
+        <!-- Enrollment Summary Card -->
+        <div id="enrollment-complete-card" class="card" style="margin-top: 1.5rem; display: none;">
+            <div style="color: #3fb950; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Behavioral Profile Successfully Created</div>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+                All 5 enrollment samples recorded. Your 17 statistical feature baseline is saved and ready for verification testing.
+            </p>
+            <div style="display: flex; gap: 1rem;">
+                <a href="authenticate.html" class="btn btn-primary">Test Biometric Verification &rarr;</a>
+                <a href="dashboard.html" class="btn btn-secondary">View Profile on Dashboard</a>
             </div>
         </div>
     </main>
 
     <footer>
-        <p>KeyShield AI &copy; 2026</p>
+        KeyShield AI &copy; 2026 — Behavioral Biometrics Verification Engine
     </footer>
 
-    <script src="js/api.js"></script>
-    <script src="js/featureExtractor.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/enroll.js"></script>
 </body>
 </html>

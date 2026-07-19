@@ -3,86 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biometric Authentication Test - KeyShield AI</title>
+    <title>Biometrics Verification Test - KeyShield AI</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <nav class="navbar">
         <a href="index.html" class="brand">
-            <div class="brand-icon">🛡️</div>
+            <div class="brand-icon">KS</div>
             <span>KeyShield AI</span>
         </a>
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
+            <li><a href="enroll.html">Enrollment</a></li>
             <li><a href="authenticate.html" class="active">Biometrics Test</a></li>
-            <li><a href="profile.html">Profile</a></li>
             <li><a href="dashboard.html">Dashboard</a></li>
         </ul>
     </nav>
 
-    <main class="container" style="max-width: 840px;">
-        <div class="glass-card">
-            <h2 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.02em;">Biometric Verification Test</h2>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">
-                Type the verification phrase below to test continuous biometrics classification via the Stacking Ensemble ML engine and Tree SHAP.
+    <main class="container" style="max-width: 880px;">
+        <div class="card">
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">4-Layer Biometric Verification Test</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
+                Type the fixed paragraph once to execute the 4-layer verification engine: Statistical Profile Similarity (45%) + Isolation Forest Anomaly Detection (15%) + Stacking Ensemble (40%) + Tree SHAP.
             </p>
 
             <div id="alert-box" style="display: none; padding: 0.75rem; border-radius: var(--radius-input); font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
 
             <div class="typing-box" id="typing-container">
-                <div class="phrase-display">keyshield authentication dynamics</div>
-                <input type="text" id="typing-input" class="form-control" placeholder="Click here and start typing..." autocomplete="off" spellcheck="false" style="text-align: center; font-size: 1.1rem; letter-spacing: 0.05em;">
+                <div class="phrase-display">The quick brown fox jumps over the lazy dog while artificial intelligence continues transforming cybersecurity.</div>
+                <input type="text" id="typing-input" class="form-control" placeholder="Click here and start typing..." autocomplete="off" spellcheck="false" style="text-align: center; font-size: 1rem; letter-spacing: 0.02em;">
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
                 <button id="reset-btn" class="btn btn-secondary">Reset Input</button>
-                <button id="auth-btn" class="btn btn-primary" disabled>Authenticate</button>
+                <button id="auth-btn" class="btn btn-primary" disabled>Run Verification Engine</button>
             </div>
         </div>
 
-        <!-- Result Card -->
-        <div id="result-card" class="glass-card" style="margin-top: 1.5rem; display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="font-size: 1.25rem; font-weight: 600;">Authentication Decision</h3>
+        <!-- 4-Layer Verification Result Card -->
+        <div id="result-card" class="card" style="margin-top: 1.5rem; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 700;">4-Layer Verification Engine Decision</h3>
                 <div id="risk-badge" class="badge"></div>
             </div>
 
             <div class="grid-4" style="margin-bottom: 1.5rem;">
                 <div class="stat-card">
-                    <span class="stat-label">Decision</span>
+                    <span class="stat-label">Final Decision</span>
                     <span id="res-decision" class="stat-value"></span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-label">Confidence</span>
+                    <span class="stat-label">Confidence Score</span>
                     <span id="res-confidence" class="stat-value"></span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-label">Similarity</span>
+                    <span class="stat-label">Profile Similarity (45%)</span>
                     <span id="res-similarity" class="stat-value"></span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-label">Ensemble Prob</span>
+                    <span class="stat-label">Stacking Prob (40%)</span>
                     <span id="res-prob" class="stat-value"></span>
                 </div>
             </div>
 
-            <div style="background: rgba(0,0,0,0.5); border-radius: var(--radius-input); padding: 1.25rem; margin-bottom: 1rem; border: 1px solid var(--border-apple);">
-                <h4 style="font-size: 0.95rem; color: var(--apple-blue); margin-bottom: 0.5rem; font-weight: 600;">Tree SHAP Explainability Output</h4>
-                <p id="res-shap-text" style="font-size: 0.9rem; color: var(--text-primary); line-height: 1.5;"></p>
+            <div class="grid-3" style="margin-bottom: 1.5rem;">
+                <div style="background: rgba(1, 4, 9, 0.6); padding: 1rem; border-radius: var(--radius-input); border: 1px solid var(--border-subtle);">
+                    <span class="stat-label">Isolation Forest (15%)</span>
+                    <div id="res-iso" style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;">Normal (0.85)</div>
+                </div>
+                <div style="background: rgba(1, 4, 9, 0.6); padding: 1rem; border-radius: var(--radius-input); border: 1px solid var(--border-subtle);">
+                    <span class="stat-label">Base Models Probabilities</span>
+                    <div id="res-base-models" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">RF: 90% | XGB: 92% | LGB: 91%</div>
+                </div>
+                <div style="background: rgba(1, 4, 9, 0.6); padding: 1rem; border-radius: var(--radius-input); border: 1px solid var(--border-subtle);">
+                    <span class="stat-label">Profile Adaptation (EMA)</span>
+                    <div id="res-profile-updated" style="font-size: 1.15rem; font-weight: 700; color: #3fb950; margin-top: 0.25rem;">Updated</div>
+                </div>
+            </div>
+
+            <div style="background: rgba(1, 4, 9, 0.8); border-radius: var(--radius-input); padding: 1.25rem; margin-bottom: 1.25rem; border: 1px solid var(--border-subtle);">
+                <h4 style="font-size: 0.9rem; color: var(--accent-blue); margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase;">Tree SHAP Natural Language Explanation</h4>
+                <p id="res-shap-text" style="font-size: 0.92rem; color: var(--text-primary); line-height: 1.5;"></p>
             </div>
 
             <div style="text-align: right;">
-                <a href="dashboard.html" class="btn btn-secondary" style="font-size: 0.85rem;">View Full Analytics on Dashboard &rarr;</a>
+                <a href="dashboard.html" class="btn btn-secondary" style="font-size: 0.85rem;">View Complete Analytics on Dashboard &rarr;</a>
             </div>
         </div>
     </main>
 
     <footer>
-        KeyShield AI &copy; 2026 — Apple-Inspired Behavioral Biometric Authentication Platform
+        KeyShield AI &copy; 2026 — Behavioral Biometrics Verification Engine
     </footer>
 
-    <script src="js/api.js"></script>
-    <script src="js/featureExtractor.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/authenticate.js"></script>
 </body>
 </html>
