@@ -14,9 +14,9 @@ def get_user_profile(db: Session = Depends(get_db)):
     """Returns behavioral profile statistics and feature baseline."""
     profile_record = db.query(UserProfile).filter(UserProfile.user_id == 1).first()
 
-    if profile_record and profile_record.model_blob:
+    if profile_record and profile_record.profile_blob:
         try:
-            blob = json.loads(profile_record.model_blob)
+            blob = json.loads(profile_record.profile_blob)
             return {
                 "user_id": 1,
                 "username": "User",

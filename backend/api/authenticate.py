@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from backend.db.database import get_db
-from backend.db.models import UserProfile, AuthenticationLog
+from backend.db.models import User, UserProfile, AuthenticationLog
 from backend.db.schemas import VerificationRequest, VerificationResponse
 from backend.ml.predictor import predictor_engine
 from backend.ml.feature_engineering import create_behavioral_profile
@@ -22,14 +22,21 @@ def authenticate_sample(request: VerificationRequest, db: Session = Depends(get_
     Stage 4: Configurable Weighted Decision Engine
     Stage 5: Tree SHAP Explainability & Natural Language Explanation
     """
-    raw_events = [e.dict() for e in request.events]
+    # Ensure default User record exists in DB
+    user_record = db.query(User).filter(User.id == 1).first()
+    if not user_record:
+        user_record = User(id=1, username="demo_user", email="demo@keyshield.ai", password_hash="demo_hash")
+        db.add(user_record)
+        db.commit()
+
+    raw_events = [e.dict() if hasattr(e, 'dict') else e.model_dump() for e in request.events]
 
     # Fetch User Behavioral Profile from Database
     profile_record = db.query(UserProfile).filter(UserProfile.user_id == 1).first()
 
-    if profile_record and profile_record.model_blob:
+    if profile_record and profile_record.profile_blob:
         try:
-            behavioral_profile = json.loads(profile_record.model_blob)
+            behavioral_profile = json.loads(profile_record.profile_blob)
         except Exception:
             behavioral_profile = {}
     else:
@@ -66,7 +73,7 @@ def authenticate_sample(request: VerificationRequest, db: Session = Depends(get_
 
     # Update Profile via EMA if genuine & high confidence
     if result.get("profile_updated") and result.get("new_profile") and profile_record:
-        profile_record.model_blob = json.dumps(result["new_profile"])
+        profile_record.profile_blob = json.dumps(result["new_profile"])
         profile_record.last_updated = datetime.utcnow()
 
     db.commit()

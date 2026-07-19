@@ -47,6 +47,7 @@ class UserProfile(Base):
     backspaces = Column(Float, nullable=False)
     sample_count = Column(Integer, default=1)
     drift_score = Column(Float, default=0.0)
+    profile_blob = Column(Text, nullable=True)  # JSON string storing full 17-feature profile baseline
     last_updated = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
 

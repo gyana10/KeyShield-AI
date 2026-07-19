@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from backend.db.database import get_db
-from backend.db.models import UserProfile, Enrollment
+from backend.db.models import User, UserProfile, Enrollment
 from backend.db.schemas import EnrollmentRequest, EnrollmentResponse
 from backend.ml.feature_engineering import extract_keystroke_features, create_behavioral_profile
 
@@ -20,26 +20,31 @@ def enroll_profile(request: EnrollmentRequest, db: Session = Depends(get_db)):
     if len(raw_samples) < 5:
         raise HTTPException(status_code=400, detail="5 enrollment samples of the fixed paragraph are required.")
 
+    # Ensure default User record exists in DB
+    user_record = db.query(User).filter(User.id == 1).first()
+    if not user_record:
+        user_record = User(id=1, username="demo_user", email="demo@keyshield.ai", password_hash="demo_hash")
+        db.add(user_record)
+        db.commit()
+
     # 1. Extract 17 statistical feature vectors for all 5 samples
     extracted_features = []
     for idx, raw_events in enumerate(raw_samples):
-        # Convert Pydantic events to list of dicts
-        events_list = [e.dict() for e in raw_events]
+        events_list = [e.dict() if hasattr(e, 'dict') else e.model_dump() for e in raw_events]
         feat_vector = extract_keystroke_features(events_list)
         extracted_features.append(feat_vector)
 
-        # Record individual enrollment sample in database
         db_sample = Enrollment(
             user_id=1,
             sample_index=idx + 1,
-            hold_times=json.dumps([events_list]),
-            flight_times=json.dumps([feat_vector]),
+            hold_times=json.dumps(events_list),
+            flight_times=json.dumps(feat_vector),
             total_duration=feat_vector.get("typing_duration", 0.0),
             backspaces=int(feat_vector.get("backspaces", 0))
         )
         db.add(db_sample)
 
-    # 2. Build 1 Behavioral Profile from 5 samples (mean, median, std, min, max per feature)
+    # 2. Build 1 Behavioral Profile from 5 samples
     behavioral_profile = create_behavioral_profile(extracted_features)
 
     # 3. Store/Update UserProfile in Database
@@ -48,7 +53,6 @@ def enroll_profile(request: EnrollmentRequest, db: Session = Depends(get_db)):
         profile_record = UserProfile(
             user_id=1,
             sample_count=5,
-            enrollment_complete=True,
             hold_mean=behavioral_profile.get("hold_mean", {}).get("mean", 112.0),
             hold_std=behavioral_profile.get("hold_mean", {}).get("std", 12.0),
             flight_mean=behavioral_profile.get("flight_mean", {}).get("mean", 145.0),
@@ -56,19 +60,18 @@ def enroll_profile(request: EnrollmentRequest, db: Session = Depends(get_db)):
             total_duration=behavioral_profile.get("typing_duration", {}).get("mean", 2.85),
             backspaces=behavioral_profile.get("backspaces", {}).get("mean", 0.0),
             drift_score=0.0,
-            model_blob=json.dumps(behavioral_profile)
+            profile_blob=json.dumps(behavioral_profile)
         )
         db.add(profile_record)
     else:
         profile_record.sample_count = 5
-        profile_record.enrollment_complete = True
         profile_record.hold_mean = behavioral_profile.get("hold_mean", {}).get("mean", 112.0)
         profile_record.hold_std = behavioral_profile.get("hold_mean", {}).get("std", 12.0)
         profile_record.flight_mean = behavioral_profile.get("flight_mean", {}).get("mean", 145.0)
         profile_record.flight_std = behavioral_profile.get("flight_mean", {}).get("std", 18.0)
         profile_record.total_duration = behavioral_profile.get("typing_duration", {}).get("mean", 2.85)
         profile_record.backspaces = behavioral_profile.get("backspaces", {}).get("mean", 0.0)
-        profile_record.model_blob = json.dumps(behavioral_profile)
+        profile_record.profile_blob = json.dumps(behavioral_profile)
 
     db.commit()
 
