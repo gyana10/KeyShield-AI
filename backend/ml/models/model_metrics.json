@@ -1,0 +1,69 @@
+{
+    "architecture": "Stacking Ensemble (Isolation Forest + RF + XGBoost + LightGBM -> Logistic Regression)",
+    "base_models": [
+        "Isolation Forest",
+        "Random Forest",
+        "XGBoost",
+        "LightGBM"
+    ],
+    "meta_learner": "Logistic Regression",
+    "features": [
+        "hold_mean",
+        "hold_std",
+        "hold_min",
+        "hold_max",
+        "flight_mean",
+        "flight_std",
+        "flight_min",
+        "flight_max",
+        "total_duration",
+        "backspaces"
+    ],
+    "metrics": [
+        {
+            "model_name": "Isolation Forest",
+            "accuracy": 0.8729,
+            "precision": 0.8939,
+            "recall": 0.9616,
+            "f1_score": 0.9265,
+            "roc_auc": 0.8821,
+            "eer": 0.1859
+        },
+        {
+            "model_name": "Random Forest",
+            "accuracy": 0.9239,
+            "precision": 0.9311,
+            "recall": 0.9812,
+            "f1_score": 0.9555,
+            "roc_auc": 0.9258,
+            "eer": 0.1427
+        },
+        {
+            "model_name": "XGBoost",
+            "accuracy": 0.919,
+            "precision": 0.933,
+            "recall": 0.9725,
+            "f1_score": 0.9524,
+            "roc_auc": 0.9286,
+            "eer": 0.1427
+        },
+        {
+            "model_name": "LightGBM",
+            "accuracy": 0.9206,
+            "precision": 0.9341,
+            "recall": 0.9733,
+            "f1_score": 0.9533,
+            "roc_auc": 0.9261,
+            "eer": 0.1475
+        },
+        {
+            "model_name": "Stacking Ensemble",
+            "accuracy": 0.9209,
+            "precision": 0.9329,
+            "recall": 0.9753,
+            "f1_score": 0.9536,
+            "roc_auc": 0.9302,
+            "eer": 0.1398
+        }
+    ]
+}
