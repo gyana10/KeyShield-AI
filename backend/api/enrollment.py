@@ -1,86 +1,85 @@
 import json
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from backend.db.database import get_db
-from backend.db.models import User, Enrollment, UserProfile
-from backend.db.schemas import KeystrokeData, EnrollmentResponse
-from backend.core.dependencies import get_current_email
-from backend.ml.profile_engine.builder import ProfileBuilder
+from backend.db.models import UserProfile, Enrollment
+from backend.db.schemas import EnrollmentRequest, EnrollmentResponse
+from backend.ml.feature_engineering import extract_keystroke_features, create_behavioral_profile
 
-router = APIRouter(prefix="", tags=["Enrollment"])
-
-REQUIRED_ENROLLMENT_SAMPLES = 3
+router = APIRouter(tags=["Enrollment"])
 
 
 @router.post("/enroll", response_model=EnrollmentResponse)
-def enroll(
-    data: KeystrokeData,
-    email: str = Depends(get_current_email),
-    db: Session = Depends(get_db)
-):
-    user = db.query(User).filter(User.email == email).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found."
+def enroll_profile(request: EnrollmentRequest, db: Session = Depends(get_db)):
+    """
+    Processes 5 enrollment raw typing samples of the fixed paragraph.
+    Extracts 17 features per sample, builds 1 user behavioral profile, and saves to database.
+    """
+    raw_samples = request.samples
+    if len(raw_samples) < 5:
+        raise HTTPException(status_code=400, detail="5 enrollment samples of the fixed paragraph are required.")
+
+    # 1. Extract 17 statistical feature vectors for all 5 samples
+    extracted_features = []
+    for idx, raw_events in enumerate(raw_samples):
+        # Convert Pydantic events to list of dicts
+        events_list = [e.dict() for e in raw_events]
+        feat_vector = extract_keystroke_features(events_list)
+        extracted_features.append(feat_vector)
+
+        # Record individual enrollment sample in database
+        db_sample = Enrollment(
+            user_id=1,
+            sample_index=idx + 1,
+            hold_times=json.dumps([events_list]),
+            flight_times=json.dumps([feat_vector]),
+            total_duration=feat_vector.get("typing_duration", 0.0),
+            backspaces=int(feat_vector.get("backspaces", 0))
         )
+        db.add(db_sample)
 
-    # Get user's existing enrollments
-    existing_enrollments = db.query(Enrollment).filter(
-        Enrollment.user_id == user.id
-    ).order_by(Enrollment.id.asc()).all()
+    # 2. Build 1 Behavioral Profile from 5 samples (mean, median, std, min, max per feature)
+    behavioral_profile = create_behavioral_profile(extracted_features)
 
-    current_sample_idx = len(existing_enrollments) + 1
+    # 3. Store/Update UserProfile in Database
+    profile_record = db.query(UserProfile).filter(UserProfile.user_id == 1).first()
+    if not profile_record:
+        profile_record = UserProfile(
+            user_id=1,
+            sample_count=5,
+            enrollment_complete=True,
+            hold_mean=behavioral_profile.get("hold_mean", {}).get("mean", 112.0),
+            hold_std=behavioral_profile.get("hold_mean", {}).get("std", 12.0),
+            flight_mean=behavioral_profile.get("flight_mean", {}).get("mean", 145.0),
+            flight_std=behavioral_profile.get("flight_mean", {}).get("std", 18.0),
+            total_duration=behavioral_profile.get("typing_duration", {}).get("mean", 2.85),
+            backspaces=behavioral_profile.get("backspaces", {}).get("mean", 0.0),
+            drift_score=0.0,
+            model_blob=json.dumps(behavioral_profile)
+        )
+        db.add(profile_record)
+    else:
+        profile_record.sample_count = 5
+        profile_record.enrollment_complete = True
+        profile_record.hold_mean = behavioral_profile.get("hold_mean", {}).get("mean", 112.0)
+        profile_record.hold_std = behavioral_profile.get("hold_mean", {}).get("std", 12.0)
+        profile_record.flight_mean = behavioral_profile.get("flight_mean", {}).get("mean", 145.0)
+        profile_record.flight_std = behavioral_profile.get("flight_mean", {}).get("std", 18.0)
+        profile_record.total_duration = behavioral_profile.get("typing_duration", {}).get("mean", 2.85)
+        profile_record.backspaces = behavioral_profile.get("backspaces", {}).get("mean", 0.0)
+        profile_record.model_blob = json.dumps(behavioral_profile)
 
-    # Save new enrollment sample
-    new_enrollment = Enrollment(
-        user_id=user.id,
-        sample_index=current_sample_idx,
-        hold_times=json.dumps(data.holdTimes),
-        flight_times=json.dumps(data.flightTimes),
-        total_duration=data.totalDuration,
-        backspaces=data.backspaces
-    )
-
-    db.add(new_enrollment)
     db.commit()
-    db.refresh(new_enrollment)
-
-    all_enrollments = existing_enrollments + [new_enrollment]
-    total_samples = len(all_enrollments)
-    is_complete = total_samples >= REQUIRED_ENROLLMENT_SAMPLES
-
-    # Build/Update UserProfile baseline if >= 3 samples
-    if is_complete:
-        profile_stats = ProfileBuilder.build_from_enrollments(all_enrollments)
-
-        existing_profile = db.query(UserProfile).filter(
-            UserProfile.user_id == user.id
-        ).first()
-
-        if existing_profile:
-            existing_profile.hold_mean = profile_stats["hold_mean"]
-            existing_profile.hold_std = profile_stats["hold_std"]
-            existing_profile.flight_mean = profile_stats["flight_mean"]
-            existing_profile.flight_std = profile_stats["flight_std"]
-            existing_profile.total_duration = profile_stats["total_duration"]
-            existing_profile.backspaces = profile_stats["backspaces"]
-            existing_profile.sample_count = total_samples
-        else:
-            new_profile = UserProfile(
-                user_id=user.id,
-                sample_count=total_samples,
-                **profile_stats
-            )
-            db.add(new_profile)
-
-        db.commit()
 
     return {
-        "message": f"Enrollment sample {current_sample_idx}/{REQUIRED_ENROLLMENT_SAMPLES} saved successfully.",
-        "user": user.username,
-        "sample_index": current_sample_idx,
-        "total_samples": total_samples,
-        "enrollment_complete": is_complete
+        "message": "Behavioral Profile created successfully from 5 enrollment samples.",
+        "enrollment_complete": True,
+        "total_samples": 5,
+        "profile_summary": {
+            "hold_mean": behavioral_profile.get("hold_mean", {}).get("mean", 112.0),
+            "flight_mean": behavioral_profile.get("flight_mean", {}).get("mean", 145.0),
+            "typing_speed": behavioral_profile.get("typing_speed", {}).get("mean", 180.0),
+            "rhythm_score": behavioral_profile.get("rhythm_score", {}).get("mean", 92.0)
+        }
     }

@@ -1,99 +1,93 @@
 import json
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from backend.db.database import get_db
-from backend.db.models import User, UserProfile, AuthenticationLog
-from backend.db.schemas import AuthenticationRequest, AuthenticationResponse
-from backend.core.dependencies import get_current_email
-from backend.ml.feature_adapter import build_features
-from backend.ml.predictor import predict
-from backend.ml.profile_similarity import calculate_similarity
-from backend.ml.profile_engine.fusion import TriLayerFusionEngine
-from backend.ml.profile_engine.updater import ProfileUpdater
-from backend.xai.explainer import explain
+from backend.db.models import UserProfile, AuthenticationLog
+from backend.db.schemas import VerificationRequest, VerificationResponse
+from backend.ml.predictor import predictor_engine
+from backend.ml.feature_engineering import create_behavioral_profile
 
-router = APIRouter(prefix="", tags=["Authentication Engine"])
+router = APIRouter(tags=["Authentication"])
 
 
-@router.post("/authenticate", response_model=AuthenticationResponse)
-def authenticate(
-    data: AuthenticationRequest,
-    email: str = Depends(get_current_email),
-    db: Session = Depends(get_db)
-):
-    user = db.query(User).filter(User.email == email).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found."
-        )
+@router.post("/authenticate", response_model=VerificationResponse)
+def authenticate_sample(request: VerificationRequest, db: Session = Depends(get_db)):
+    """
+    Evaluates verification sample through 4-Layer Verification Engine:
+    Stage 1: Statistical Profile Similarity
+    Stage 2: Independent Isolation Forest Anomaly Detection
+    Stage 3: 5-Fold OOF Stacking Ensemble Classification
+    Stage 4: Configurable Weighted Decision Engine
+    Stage 5: Tree SHAP Explainability & Natural Language Explanation
+    """
+    raw_events = [e.dict() for e in request.events]
 
-    # 1. Build statistical features from input timing array
-    raw_dict = data.model_dump()
-    features = build_features(raw_dict)
+    # Fetch User Behavioral Profile from Database
+    profile_record = db.query(UserProfile).filter(UserProfile.user_id == 1).first()
 
-    # 2. Retrieve user behavioral profile
-    profile = db.query(UserProfile).filter(
-        UserProfile.user_id == user.id
-    ).first()
-
-    # 3. Calculate Profile Similarity
-    if profile:
-        profile_res = calculate_similarity(profile, features)
+    if profile_record and profile_record.model_blob:
+        try:
+            behavioral_profile = json.loads(profile_record.model_blob)
+        except Exception:
+            behavioral_profile = {}
     else:
-        profile_res = {
-            "similarity": 50.0,
-            "explanations": []
-        }
+        # Fallback default baseline if enrollment hasn't been completed yet
+        default_features = [predictor_engine.evaluate_verification(raw_events, {})["verification_features"]] * 5
+        behavioral_profile = create_behavioral_profile(default_features)
 
-    # 4. Stacking Ensemble Inference
-    ensemble_res = predict(features, profile)
+    # Execute 4-Layer Verification Pipeline in predictor_engine
+    result = predictor_engine.evaluate_verification(raw_events, behavioral_profile)
 
-    # 5. Tri-Layer Fusion Evaluation
-    fusion_res = TriLayerFusionEngine.evaluate(ensemble_res, profile_res)
-
-    # 6. Tree SHAP Explanations
-    shap_res = explain(features, profile)
-
-    # 7. Adaptive Profile Update (if Genuine & High Confidence)
-    if profile:
-        ProfileUpdater.update_profile(
-            profile_model=profile,
-            new_features=features,
-            confidence_score=fusion_res["confidence_score"],
-            decision=fusion_res["decision"]
-        )
-
-    # 8. Store Authentication Log
-    now = datetime.utcnow()
+    # Log Authentication Record into Database
     auth_log = AuthenticationLog(
-        user_id=user.id,
-        decision=fusion_res["decision"],
-        anomaly_score=fusion_res["anomaly_score"],
-        risk=fusion_res["risk"],
-        profile_similarity=fusion_res["profile_similarity"],
-        probability=fusion_res["probability"],
-        confidence_score=fusion_res["confidence_score"],
-        model_contributions=json.dumps(fusion_res["model_contributions"]),
-        shap_explanation=json.dumps(shap_res),
-        created_at=now
+        user_id=1,
+        decision=result["decision"],
+        risk=result["risk"],
+        confidence_score=result["confidence"],
+        anomaly_score=result["isolation_forest_score"],
+        profile_similarity=result["profile_similarity"],
+        probability=result["probability_genuine"],
+        model_contributions=json.dumps({
+            "rf_probability": result["rf_probability"],
+            "xgb_probability": result["xgb_probability"],
+            "lgb_probability": result["lgb_probability"],
+            "stacking_probability": result["stacking_probability"],
+            "isolation_forest_result": result["isolation_forest_result"]
+        }),
+        shap_explanation=json.dumps({
+            "top_contributing_features": result["top_contributing_features"],
+            "local_contributions": result["shap_explanation"],
+            "text_explanation": result["text_explanation"]
+        })
     )
-
     db.add(auth_log)
+
+    # Update Profile via EMA if genuine & high confidence
+    if result.get("profile_updated") and result.get("new_profile") and profile_record:
+        profile_record.model_blob = json.dumps(result["new_profile"])
+        profile_record.last_updated = datetime.utcnow()
+
     db.commit()
 
     return {
-        "user": user.username,
-        "decision": fusion_res["decision"],
-        "risk": fusion_res["risk"],
-        "probability": fusion_res["probability"],
-        "anomaly_score": fusion_res["anomaly_score"],
-        "profile_similarity": fusion_res["profile_similarity"],
-        "confidence_score": fusion_res["confidence_score"],
-        "model_contributions": fusion_res["model_contributions"],
-        "explanations": fusion_res["explanations"],
-        "shap_explanation": shap_res,
-        "timestamp": now
+        "decision": result["decision"],
+        "risk": result["risk"],
+        "confidence": result["confidence"],
+        "probability_genuine": result["probability_genuine"],
+        "probability_suspicious": result["probability_suspicious"],
+        "profile_similarity": result["profile_similarity"],
+        "isolation_forest_score": result["isolation_forest_score"],
+        "isolation_forest_result": result["isolation_forest_result"],
+        "rf_probability": result["rf_probability"],
+        "xgb_probability": result["xgb_probability"],
+        "lgb_probability": result["lgb_probability"],
+        "stacking_probability": result["stacking_probability"],
+        "top_contributing_features": result["top_contributing_features"],
+        "shap_explanation": result["shap_explanation"],
+        "text_explanation": result["text_explanation"],
+        "feature_breakdown": result["feature_breakdown"],
+        "profile_updated": result["profile_updated"],
+        "timestamp": datetime.utcnow()
     }

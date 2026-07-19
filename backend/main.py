@@ -4,32 +4,28 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from backend.db.init_db import init_db
-from backend.api.auth import router as auth_router
 from backend.api.enrollment import router as enroll_router
 from backend.api.authenticate import router as authenticate_router
-from backend.api.history import router as history_router
-from backend.api.profile import router as profile_router
-from backend.api.model_info import router as model_info_router
-from backend.api.statistics import router as statistics_router
+from backend.api.dashboard import router as dashboard_router
 
 load_dotenv()
 
 app = FastAPI(
-    title="KeyShield AI - Behavioral Biometrics Platform",
-    description="AI Behavioral Biometric Authentication System powered by Stacking Ensemble & Tree SHAP Explainability",
-    version="1.0.0"
+    title="KeyShield AI - Behavioral Biometrics Engine",
+    description="4-Layer Commercial Behavioral Biometrics Verification Engine powered by Stacking Ensemble & Tree SHAP",
+    version="2.0.0"
 )
 
-# Initialize database schema safely on startup
+
 @app.on_event("startup")
 def on_startup():
     try:
         init_db()
     except Exception as e:
-        print("Database startup initialization warning:", e)
+        print("Database startup initialization notice:", e)
 
 
-# Configurable CORS origins with automatic Vercel wildcard regex support
+# Wildcard CORS middleware for seamless local and cloud deployment
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
 user_origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
 
@@ -53,20 +49,16 @@ app.add_middleware(
 )
 
 # Register API Routers
-app.include_router(auth_router)
 app.include_router(enroll_router)
 app.include_router(authenticate_router)
-app.include_router(history_router)
-app.include_router(profile_router)
-app.include_router(model_info_router)
-app.include_router(statistics_router)
+app.include_router(dashboard_router)
 
 
 @app.get("/")
 def root():
     return {
         "status": "online",
-        "system": "KeyShield AI Biometrics Platform 🛡️",
-        "version": "1.0.0",
+        "system": "KeyShield AI Behavioral Biometrics Engine 🛡️",
+        "version": "2.0.0",
         "docs": "/docs"
     }
