@@ -1,6 +1,9 @@
 # KeyShield AI 🛡️
 ### AI Behavioral Biometric Authentication Platform
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://key-shield-ai.vercel.app)
+[![API Server](https://img.shields.io/badge/API_Server-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://keyshield-ai-backend.onrender.com)
+[![API Docs](https://img.shields.io/badge/API_Docs-OpenAPI-85EA2D?style=for-the-badge&logo=openapi-initiative&logoColor=black)](https://keyshield-ai-backend.onrender.com/docs)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.4+-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
@@ -9,16 +12,25 @@
 [![SHAP](https://img.shields.io/badge/SHAP-Explainable_AI-FF6F00?style=for-the-badge)](https://shap.readthedocs.io)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org)
 
-**KeyShield AI** is an enterprise-grade AI-powered Behavioral Biometric Authentication Platform that continuously verifies user identity based on unique keystroke dynamics (hold times, flight times, total durations, and correction habits).
+**KeyShield AI** is a production-grade AI-powered Behavioral Biometric Authentication Platform that continuously verifies user identity based on unique keystroke dynamics (hold times, flight times, total durations, and correction habits).
 
-Unlike static password systems, KeyShield AI implements a **Tri-Layer Biometrics Decision Engine** combining a **Stacking Ensemble Machine Learning Pipeline** (Isolation Forest, Random Forest, XGBoost, LightGBM -> Logistic Regression Meta-Learner), a **Z-Score Profile Engine**, and **Tree SHAP Explainability (XAI)**.
+Unlike static password systems, KeyShield AI implements a **Tri-Layer Biometrics Decision Engine** combining a **Stacking Ensemble Machine Learning Pipeline** (Isolation Forest, Random Forest, XGBoost, LightGBM &rarr; Logistic Regression Meta-Learner), a **Z-Score Profile Engine**, and **Tree SHAP Explainability (XAI)**.
+
+---
+
+## 🔗 Live Application Links
+
+- 🌐 **Live Web Application**: [https://key-shield-ai.vercel.app](https://key-shield-ai.vercel.app)
+- ⚙️ **FastAPI Production Backend**: [https://keyshield-ai-backend.onrender.com](https://keyshield-ai-backend.onrender.com)
+- 📖 **Interactive OpenAPI Documentation**: [https://keyshield-ai-backend.onrender.com/docs](https://keyshield-ai-backend.onrender.com/docs)
+- 🐙 **GitHub Repository**: [https://github.com/gyana10/KeyShield-AI](https://github.com/gyana10/KeyShield-AI)
 
 ---
 
 ## 🌟 Key Features
 
 - **🚀 Stacking Ensemble Architecture**: Out-Of-Fold (OOF) cross-validated stacking ensemble combining Isolation Forest, Random Forest, XGBoost, and LightGBM base models with a Logistic Regression meta-learner (**92.09% Accuracy, 0.9302 ROC-AUC**).
-- **🔍 Explainable AI (SHAP Integration)**: Provides local and global feature attribution using Tree SHAP, explaining *why* an authentication attempt was classified as genuine or suspicious.
+- **🔍 Tree SHAP Explainability**: Provides local and global feature attribution using Tree SHAP, explaining *why* an authentication attempt was classified as genuine or suspicious.
 - **⚡ Tri-Layer Biometric Fusion**: Combines Stacking Ensemble Probability (50%), Statistical Profile Similarity (35%), and Isolation Forest Anomaly Scores (15%) for robust decision-making.
 - **📊 Adaptive Profile Engine**: Multi-sample baseline enrollment with Exponential Moving Average (EMA, $\alpha=0.1$) profile adaptation and real-time behavioral drift detection.
 - **🛡️ Glassmorphism Security Dashboard**: Modern, responsive dark-mode UI with Chart.js visualizations (Radar Chart, Donut Risk Gauge, Timeline, SHAP Feature Importance, and Model Benchmarks).
@@ -30,13 +42,13 @@ Unlike static password systems, KeyShield AI implements a **Tri-Layer Biometrics
 
 ```mermaid
 flowchart TD
-    subgraph Client["Client Interface"]
+    subgraph Client["Client Interface (Vercel)"]
         UI["Glassmorphic UI\n(Login, Register, Enroll, Authenticate, Dashboard)"]
         FE["Keystroke Feature Extractor\n(Hold/Flight timings, Totals, Backspaces)"]
         Charts["Chart.js Engine\n(Radar, Gauge, Timeline, SHAP, Model Comparison)"]
     end
 
-    subgraph Backend["FastAPI Backend Services"]
+    subgraph Backend["FastAPI Backend Services (Render)"]
         Router["REST API Controllers\n(/auth, /enroll, /authenticate, /history, /profile, /model-info, /statistics)"]
         Security["Security Middleware\n(JWT Auth, Rate Limiter, Password Policy, CORS)"]
 
@@ -51,7 +63,7 @@ flowchart TD
         end
     end
 
-    subgraph Database["PostgreSQL Storage (Neon / Local)"]
+    subgraph Database["PostgreSQL Storage (Neon DB)"]
         DB[(Users, Enrollments, UserProfiles, AuthenticationLogs)]
     end
 
@@ -175,24 +187,11 @@ pytest tests/ -v
 
 ---
 
-## 🌐 Free Cloud Deployment Instructions
+## 🌐 Cloud Deployment Architecture
 
-### 1. Database Deployment (Neon PostgreSQL)
-1. Sign up at [Neon.tech](https://neon.tech) (Free Tier).
-2. Create a database project named `keyshield`.
-3. Copy the PostgreSQL connection string URI.
-
-### 2. Backend Deployment (Render)
-1. Sign up at [Render.com](https://render.com) (Free Tier).
-2. Click **New +** -> **Blueprint**.
-3. Connect your GitHub repository `gyana10/KeyShield-AI`.
-4. Render will automatically detect `render.yaml`.
-5. Set environment variable `DATABASE_URL` to your Neon PostgreSQL URI.
-
-### 3. Frontend Deployment (Vercel)
-1. Sign up at [Vercel.com](https://vercel.com) (Free Tier).
-2. Click **Add New Project** and import `gyana10/KeyShield-AI`.
-3. Vercel will automatically configure static deployment via `vercel.json`.
+- **Database**: [Neon.tech](https://neon.tech) (Serverless PostgreSQL)
+- **Backend Service**: [Render.com](https://render.com) (FastAPI Python Environment)
+- **Frontend App**: [Vercel.com](https://vercel.com) (Global CDN Static Hosting)
 
 ---
 
