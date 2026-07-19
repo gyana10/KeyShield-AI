@@ -1,86 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>Dashboard</title>
-
-<link rel="stylesheet"
-href="css/style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biometrics Dashboard - KeyShield AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
+    <header class="navbar">
+        <a href="index.html" class="brand">
+            <div class="brand-icon">🛡️</div>
+            <span>KeyShield AI</span>
+        </a>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="enroll.html">Enrollment</a></li>
+                <li><a href="authenticate.html">Authenticate</a></li>
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                <li><button id="logout-btn" class="btn btn-secondary" style="padding: 0.4rem 0.9rem; font-size: 0.85rem;">Logout</button></li>
+            </ul>
+        </nav>
+    </header>
 
-<div class="container">
+    <main class="container">
+        <!-- Dashboard Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-size: 1.85rem; font-weight: 700;">Biometrics Analytics Dashboard</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+                    Real-time monitoring of behavioral biometrics, stacking ensemble predictions, and SHAP explainability.
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <a href="authenticate.html" class="btn btn-primary">+ Test Authentication</a>
+            </div>
+        </div>
 
-<h1>🛡️ KeyShield AI</h1>
+        <!-- Summary Stat Cards -->
+        <section class="grid-4" style="margin-bottom: 2rem;">
+            <div class="glass-card stat-card">
+                <span class="stat-label">Total Auth Attempts</span>
+                <span id="stat-total" class="stat-value">0</span>
+            </div>
+            <div class="glass-card stat-card">
+                <span class="stat-label">Pass Rate</span>
+                <span id="stat-pass-rate" class="stat-value" style="color: var(--success);">0%</span>
+            </div>
+            <div class="glass-card stat-card">
+                <span class="stat-label">Avg Similarity</span>
+                <span id="stat-avg-sim" class="stat-value" style="color: var(--primary);">0%</span>
+            </div>
+            <div class="glass-card stat-card">
+                <span class="stat-label">Behavior Drift Status</span>
+                <span id="stat-drift" class="stat-value" style="font-size: 1.15rem; color: var(--secondary);">STABLE</span>
+            </div>
+        </section>
 
-<h2 id="welcomeUser">
-Welcome
-</h2>
+        <!-- Main Charts Section -->
+        <section class="grid-2" style="margin-bottom: 2rem;">
+            <!-- Chart 1: Radar Chart -->
+            <div class="glass-card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Profile Baseline vs Recent Attempt (Radar)</h3>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
 
-<br>
+            <!-- Chart 2: Similarity Gauge / Donut -->
+            <div class="glass-card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Biometric Similarity & Risk Distribution</h3>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="donutChart"></canvas>
+                </div>
+            </div>
+        </section>
 
-<h3>
+        <section class="grid-2" style="margin-bottom: 2rem;">
+            <!-- Chart 3: History Timeline -->
+            <div class="glass-card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Authentication Timeline (Similarity & Confidence)</h3>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </div>
 
-Behavior Profile
+            <!-- Chart 4: SHAP Feature Importance -->
+            <div class="glass-card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Global Tree SHAP Feature Importance</h3>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="shapChart"></canvas>
+                </div>
+            </div>
+        </section>
 
-</h3>
+        <!-- Chart 5: Model Comparison Performance -->
+        <section style="margin-bottom: 2rem;">
+            <div class="glass-card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Stacking Ensemble Base Models Benchmark Metrics</h3>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="modelCompChart"></canvas>
+                </div>
+            </div>
+        </section>
 
-<p>
+        <!-- Authentication Log History Table -->
+        <section class="glass-card">
+            <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Authentication History Logs</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Timestamp</th>
+                            <th>Decision</th>
+                            <th>Risk</th>
+                            <th>Confidence</th>
+                            <th>Similarity</th>
+                            <th>Ensemble Prob</th>
+                            <th>Explanation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <tr>
+                            <td colspan="8" style="text-align: center; color: var(--text-dim);">Loading logs...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 
-Status :
-<span id="status">
+    <footer>
+        <p>KeyShield AI &copy; 2026</p>
+    </footer>
 
-❌ Not Enrolled
-
-</span>
-
-</p>
-
-<br>
-
-<button
-onclick="window.location.href='enroll.html'">
-
-Start Enrollment
-
-</button>
-
-<br><br>
-
-<h3>
-
-Authentication History
-
-</h3>
-
-<p>
-
-No authentication records.
-
-</p>
-
-</div>
-
-<script>
-
-const token = localStorage.getItem("token");
-
-if(!token){
-
-window.location.href="login.html";
-
-}
-
-</script>
-
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
-
 </html>

@@ -1,66 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Behavior Enrollment</title>
-
+    <title>Biometric Enrollment - KeyShield AI</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
+    <header class="navbar">
+        <a href="index.html" class="brand">
+            <div class="brand-icon">🛡️</div>
+            <span>KeyShield AI</span>
+        </a>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="enroll.html" class="active">Enrollment</a></li>
+                <li><a href="authenticate.html">Authenticate</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+            </ul>
+        </nav>
+    </header>
 
-<div class="container">
+    <main class="container" style="max-width: 720px;">
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>Behavioral Profile Enrollment</h2>
+                <div id="sample-badge" class="badge badge-medium">Sample 1 of 3</div>
+            </div>
+            
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                Type the verification phrase below naturally. You must complete at least 3 samples to build your baseline biometric profile.
+            </p>
 
-    <h1>Behavior Enrollment</h1>
+            <div id="alert-box" style="display: none; padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
 
-    <p>
-        Type the paragraph exactly as shown.
-    </p>
+            <div class="typing-box" id="typing-container">
+                <div class="phrase-display">keyshield authentication dynamics</div>
+                <input type="text" id="typing-input" class="form-control" placeholder="Click here and start typing..." autocomplete="off" spellcheck="false" style="text-align: center; font-size: 1.1rem; letter-spacing: 0.05em;">
+            </div>
 
-    <div id="paragraphBox">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                <button id="reset-btn" class="btn btn-secondary">Reset Input</button>
+                <button id="submit-sample-btn" class="btn btn-primary" disabled>Submit Sample</button>
+            </div>
+        </div>
+    </main>
 
-        <p id="paragraph">
+    <footer>
+        <p>KeyShield AI &copy; 2026</p>
+    </footer>
 
-            The quick brown fox jumps over the lazy dog.
-
-        </p>
-
-    </div>
-
-    <br>
-
-    <textarea
-
-        id="typingArea"
-
-        rows="6"
-
-        cols="70"
-
-        placeholder="Start typing here..."
-
-    ></textarea>
-
-    <br><br>
-
-    <button id="submitBtn">
-
-        Finish Attempt
-
-    </button>
-
-    <br><br>
-
-    <p id="status"></p>
-
-</div>
-
-<script src="js/typing.js"></script>
-<script src="js/featureExtractor.js"></script>
-<script src="js/enroll.js"></script>
-
+    <script src="js/api.js"></script>
+    <script src="js/featureExtractor.js"></script>
+    <script src="js/enroll.js"></script>
 </body>
-
 </html>

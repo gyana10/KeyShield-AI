@@ -1,66 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Login | KeyShield AI</title>
-
-<link rel="stylesheet" href="css/style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - KeyShield AI</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
+    <header class="navbar">
+        <a href="index.html" class="brand">
+            <div class="brand-icon">🛡️</div>
+            <span>KeyShield AI</span>
+        </a>
+    </header>
 
-<div class="container">
+    <main class="container" style="display: flex; align-items: center; justify-content: center;">
+        <div class="glass-card" style="width: 100%; max-width: 420px;">
+            <h2 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center;">Welcome Back</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; margin-bottom: 1.75rem;">
+                Sign in to your KeyShield AI account
+            </p>
 
-<h1>Login</h1>
+            <div id="alert-box" style="display: none; padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
 
-<form id="loginForm">
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="name@company.com" required>
+                </div>
 
-<input
-type="email"
-id="email"
-placeholder="Email"
-required>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
 
-<br><br>
+                <button type="submit" id="submit-btn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+                    Sign In
+                </button>
+            </form>
 
-<input
-type="password"
-id="password"
-placeholder="Password"
-required>
+            <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 1.5rem;">
+                Don't have an account? <a href="register.html" style="color: var(--primary); text-decoration: none;">Register</a>
+            </p>
+        </div>
+    </main>
 
-<br><br>
+    <footer>
+        <p>KeyShield AI &copy; 2026</p>
+    </footer>
 
-<button type="submit">
-
-Login
-
-</button>
-
-</form>
-
-<br>
-
-<p id="message"></p>
-
-<br>
-
-<a href="register.html">
-
-Create New Account
-
-</a>
-
-</div>
-
-<script src="js/login.js"></script>
-
+    <script src="js/api.js"></script>
+    <script src="js/login.js"></script>
 </body>
-
 </html>

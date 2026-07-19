@@ -1,87 +1,42 @@
-const API_URL = "http://127.0.0.1:8000";
+document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById("login-form");
+    const alertBox = document.getElementById("alert-box");
+    const submitBtn = document.getElementById("submit-btn");
 
-document
-.getElementById("loginForm")
-.addEventListener("submit", async function (e) {
+    function showAlert(msg, isError = true) {
+        alertBox.style.display = "block";
+        alertBox.textContent = msg;
+        alertBox.className = isError ? "badge badge-high" : "badge badge-low";
+        alertBox.style.width = "100%";
+    }
 
-    e.preventDefault();
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        alertBox.style.display = "none";
 
-    const data = {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
 
-        email: document.getElementById("email").value,
+        if (!email || !password) {
+            showAlert("Please fill in all fields.");
+            return;
+        }
 
-        password: document.getElementById("password").value
+        try {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Signing in...";
 
-    };
-
-    try {
-
-        const response = await fetch(
-
-            API_URL + "/login",
-
-            {
-
-                method: "POST",
-
-                headers: {
-
-                    "Content-Type": "application/json"
-
-                },
-
-                body: JSON.stringify(data)
-
-            }
-
-        );
-
-        const result = await response.json();
-
-        const message = document.getElementById("message");
-
-        if (response.ok) {
-
-            // Save JWT Token
-            localStorage.setItem(
-                "token",
-                result.access_token
-            );
-
-            // Save Email (useful later)
-            localStorage.setItem(
-                "email",
-                data.email
-            );
-
-            message.style.color = "lime";
-            message.innerHTML = "✅ Login Successful";
+            await ApiClient.login(email, password);
+            showAlert("Login successful! Redirecting...", false);
 
             setTimeout(() => {
-
                 window.location.href = "dashboard.html";
-
-            }, 1000);
-
+            }, 800);
+        } catch (err) {
+            showAlert(err.message || "Invalid credentials.");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Sign In";
         }
-
-        else {
-
-            message.style.color = "red";
-            message.innerHTML = "❌ " + result.detail;
-
-        }
-
-    }
-
-    catch (error) {
-
-        document.getElementById("message").style.color = "red";
-        document.getElementById("message").innerHTML =
-            "Unable to connect to the server.";
-
-        console.error(error);
-
-    }
-
+    });
 });

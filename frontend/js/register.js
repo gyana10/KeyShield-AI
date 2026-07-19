@@ -1,65 +1,45 @@
-const API_URL = "http://127.0.0.1:8000";
+document.addEventListener("DOMContentLoaded", () => {
+    const registerForm = document.getElementById("register-form");
+    const alertBox = document.getElementById("alert-box");
+    const submitBtn = document.getElementById("submit-btn");
 
-document
-.getElementById("registerForm")
-.addEventListener("submit", async function(e){
+    function showAlert(msg, isError = true) {
+        alertBox.style.display = "block";
+        alertBox.textContent = msg;
+        alertBox.className = isError ? "badge badge-high" : "badge badge-low";
+        alertBox.style.width = "100%";
+    }
 
-    e.preventDefault();
+    registerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        alertBox.style.display = "none";
 
-    const data = {
+        const username = document.getElementById("username").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
 
-        username: document.getElementById("username").value,
-
-        email: document.getElementById("email").value,
-
-        password: document.getElementById("password").value
-
-    };
-
-    const response = await fetch(
-
-        API_URL + "/register",
-
-        {
-
-            method:"POST",
-
-            headers:{
-
-                "Content-Type":"application/json"
-
-            },
-
-            body:JSON.stringify(data)
-
+        if (!username || !email || !password) {
+            showAlert("Please fill in all fields.");
+            return;
         }
 
-    );
+        try {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Creating Account...";
 
-    const result = await response.json();
+            await ApiClient.register(username, email, password);
+            showAlert("Registration Successful! Logging in...", false);
 
-    const message = document.getElementById("message");
-
-    if(response.ok){
-
-        message.style.color="lime";
-
-        message.innerHTML="✅ Registration Successful";
-
-        setTimeout(()=>{
-
-            window.location.href="login.html";
-
-        },1500);
-
-    }
-
-    else{
-
-        message.style.color="red";
-
-        message.innerHTML=result.detail;
-
-    }
-
+            // Automatically log in
+            await ApiClient.login(email, password);
+            setTimeout(() => {
+                window.location.href = "enroll.html";
+            }, 800);
+        } catch (err) {
+            showAlert(err.message || "Registration failed.");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Create Account";
+        }
+    });
 });
