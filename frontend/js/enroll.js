@@ -108,6 +108,10 @@ document.addEventListener("DOMContentLoaded", () => {
         progressBadge.textContent = "Enrollment Complete";
         progressBadge.className = "badge badge-low";
 
+        submitBtn.textContent = "Profile Created ✓";
+        submitBtn.disabled = true;
+        showAlert("Behavioral Profile Created Successfully from 5 Enrollment Samples!", false);
+
         const summary = res.profile_summary || {};
         const summaryHtml = `
             <div style="display: flex; gap: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
@@ -136,6 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         completeCard.style.display = "block";
-        completeCard.scrollIntoView({ behavior: "smooth" });
+        completeCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
 });

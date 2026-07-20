@@ -111,6 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function renderVerificationResults(res) {
+        showAlert("Verification Engine Execution Complete ✓ Results displayed below.", false);
+
         resDecision.textContent = res.decision;
         resDecision.style.color = res.decision === "GENUINE" ? "#3fb950" : "#f85149";
 
@@ -138,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
         resShapText.textContent = res.text_explanation || "Keystroke hold times and flight times closely matched the enrolled behavioral profile.";
 
         resultCard.style.display = "block";
-        resultCard.scrollIntoView({ behavior: "smooth" });
+        resultCard.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function getFallbackVerificationResult() {
