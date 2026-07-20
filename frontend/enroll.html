@@ -27,14 +27,14 @@
                 <div class="badge badge-low" id="sample-progress-badge">Sample 1 of 5</div>
             </div>
             <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
-                To build your 17-feature statistical behavioral profile (mean, std, min, max, median), type the fixed paragraph below <strong>5 separate times</strong> at your natural typing speed.
+                To build your 17-feature statistical behavioral profile (mean, std, min, max, median), type the paragraph below <strong>5 separate times</strong>. A new random paragraph will load for each sample. Copy-pasting is strictly prohibited.
             </p>
 
             <div id="alert-box" style="display: none; padding: 0.75rem; border-radius: var(--radius-input); font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
 
             <div class="typing-box" id="typing-container">
-                <div class="phrase-display" id="target-phrase">The quick brown fox jumps over the lazy dog while artificial intelligence continues transforming cybersecurity.</div>
-                <input type="text" id="typing-input" class="form-control" placeholder="Click here and type the exact paragraph..." autocomplete="off" spellcheck="false" style="text-align: center; font-size: 1rem; letter-spacing: 0.02em;">
+                <div class="phrase-display" id="target-phrase" style="user-select: none; -webkit-user-select: none;">Loading paragraph...</div>
+                <input type="text" id="typing-input" class="form-control" placeholder="Click here and type the paragraph above..." autocomplete="off" spellcheck="false" style="text-align: center; font-size: 1rem; letter-spacing: 0.02em;">
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
@@ -46,10 +46,13 @@
         <!-- Enrollment Summary Card -->
         <div id="enrollment-complete-card" class="card" style="margin-top: 1.5rem; display: none;">
             <div style="color: #3fb950; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Behavioral Profile Successfully Created</div>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
                 All 5 enrollment samples recorded. Your 17 statistical feature baseline is saved and ready for verification testing.
             </p>
-            <div style="display: flex; gap: 1rem;">
+
+            <div id="enrollment-summary-box"></div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                 <a href="authenticate.html" class="btn btn-primary">Test Biometric Verification &rarr;</a>
                 <a href="dashboard.html" class="btn btn-secondary">View Profile on Dashboard</a>
             </div>

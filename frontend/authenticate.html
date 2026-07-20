@@ -22,15 +22,18 @@
 
     <main class="container" style="max-width: 880px;">
         <div class="card">
-            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">4-Layer Biometric Verification Test</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h2 style="font-size: 1.5rem; font-weight: 700;">4-Layer Biometric Verification Test</h2>
+                <button id="change-paragraph-btn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.85rem;">New Paragraph</button>
+            </div>
             <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
-                Type the fixed paragraph once to execute the 4-layer verification engine: Statistical Profile Similarity (45%) + Isolation Forest Anomaly Detection (15%) + Stacking Ensemble (40%) + Tree SHAP.
+                Type the paragraph below to execute the 4-layer verification engine: Statistical Profile Similarity (45%) + Isolation Forest Anomaly Detection (15%) + Stacking Ensemble (40%) + Tree SHAP. Copy-pasting is strictly prohibited.
             </p>
 
             <div id="alert-box" style="display: none; padding: 0.75rem; border-radius: var(--radius-input); font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
 
             <div class="typing-box" id="typing-container">
-                <div class="phrase-display">The quick brown fox jumps over the lazy dog while artificial intelligence continues transforming cybersecurity.</div>
+                <div class="phrase-display" id="target-phrase" style="user-select: none; -webkit-user-select: none;">Loading paragraph...</div>
                 <input type="text" id="typing-input" class="form-control" placeholder="Click here and start typing..." autocomplete="off" spellcheck="false" style="text-align: center; font-size: 1rem; letter-spacing: 0.02em;">
             </div>
 
