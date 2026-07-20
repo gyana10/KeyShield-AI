@@ -1,28 +1,31 @@
 # KeyShield AI - Behavioral Biometrics Verification Engine
 
-KeyShield AI is a commercial-grade continuous behavioral biometrics verification system that validates user identity based on keystroke dynamics. Rather than relying on simple single-model classification, KeyShield AI implements a **4-layer decision engine** that evaluates timing patterns against learned behavioral baselines.
+KeyShield AI is a commercial-grade behavioral biometrics verification platform that validates user identity through keystroke dynamics. KeyShield AI evaluates raw typing timing patterns against a learned statistical baseline using a **4-layer decision engine** combined with explainable artificial intelligence.
 
 ---
 
-## 4-Layer Verification Architecture
+## Key Features & Security Architecture
 
-1. **Layer 1: Statistical Profile Similarity (45% Weight)**
-   - Extracts 17 statistical feature dimensions (`hold_mean`, `hold_std`, `hold_min`, `hold_max`, `hold_median`, `flight_mean`, `flight_std`, `flight_min`, `flight_max`, `flight_median`, `typing_duration`, `backspaces`, `typing_speed`, `pause_count`, `rhythm_score`, `keystroke_variance`, `transition_variance`).
-   - Computes feature-by-feature deviation against the enrolled baseline profile created from 5 enrollment samples.
+1. **5-Sample Baseline Enrollment & 25-Paragraph Bank**
+   - Collects 5 raw typing samples using a randomized 25-paragraph text bank.
+   - Computes statistical baseline tolerances (`mean`, `median`, `std`, `min`, `max`) across 17 features.
+   - Enforces copy-paste anti-cheat protection by disabling text selection, right-click context menus, and paste events.
 
-2. **Layer 2: Independent Isolation Forest Anomaly Detection (15% Weight)**
-   - Operates as an independent anomaly detector trained exclusively on genuine timing distributions to identify out-of-distribution typing samples.
+2. **Backend Feature Extraction (17 Features)**
+   - All feature processing occurs on the backend: `hold_mean`, `hold_std`, `hold_min`, `hold_max`, `hold_median`, `flight_mean`, `flight_std`, `flight_min`, `flight_max`, `flight_median`, `typing_duration`, `backspaces`, `typing_speed`, `pause_count`, `rhythm_score`, `keystroke_variance`, `transition_variance`.
 
-3. **Layer 3: Stacking Ensemble Machine Learning (40% Weight)**
-   - Integrates Random Forest, XGBoost, and LightGBM base classifiers.
-   - Outputs out-of-fold (OOF) probability vectors fed into a Logistic Regression Meta-Learner trained via 5-Fold Stratified Cross-Validation (**92.09% Accuracy, 0.9302 ROC-AUC**).
+3. **4-Layer Decision Fusion Engine**
+   - **Layer 1: Statistical Profile Similarity (45% Weight)** — Feature-by-feature deviation score.
+   - **Layer 2: Independent Isolation Forest Anomaly Detection (15% Weight)** — Out-of-distribution anomaly detector.
+   - **Layer 3: Stacking Ensemble Machine Learning (40% Weight)** — Random Forest + XGBoost + LightGBM base models fed into a 5-Fold Stratified Out-of-Fold (OOF) Logistic Regression Meta-Learner (**92.09% Accuracy, 0.9302 ROC-AUC**).
+   - **Layer 4: Tree SHAP Explainability** — Local feature attributions, contribution percentages, and natural language explanations.
 
-4. **Layer 4: Tree SHAP Explainability & Natural Language Generator**
-   - Calculates local feature attributions and contribution percentages for every verification attempt, producing human-readable explanations.
+4. **Adaptive Behavioral Profile**
+   - Updates baseline via Exponential Moving Average (EMA, $\alpha=0.1$) only when verification decision is genuine with $\ge 95\%$ confidence.
 
 ---
 
-## Model Benchmark & Comparison
+## Model Performance & Benchmark
 
 | Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -40,16 +43,16 @@ KeyShield AI is a commercial-grade continuous behavioral biometrics verification
 KeyShield_AI/
 ├── backend/
 │   ├── api/
-│   │   ├── enrollment.py        # 5-sample fixed paragraph enrollment workflow
+│   │   ├── enrollment.py        # 5-sample raw keystroke enrollment endpoint
 │   │   ├── authenticate.py      # 4-layer biometric verification endpoint
-│   │   └── dashboard.py         # Consolidated metrics, history, and model-info endpoints
+│   │   └── dashboard.py         # Consolidated profile, history, and model-info endpoints
 │   ├── ml/
-│   │   ├── feature_engineering.py # 17-feature extraction, profile generation, similarity, EMA update
+│   │   ├── feature_engineering.py # 17-feature extraction, profile creation, similarity, EMA update
 │   │   ├── train.py               # IsoForest + RF/XGB/LGBM Stacking Ensemble trainer with 5-fold OOF
 │   │   ├── predictor.py           # Verification pipeline orchestrator (4-layer weighted decision engine)
 │   │   └── explainability.py      # Tree SHAP local/global attributions & natural language generator
 │   ├── db/
-│   │   ├── database.py          # SQLAlchemy session & database engine
+│   │   ├── database.py          # SQLAlchemy session & engine
 │   │   ├── models.py            # Database tables (User, Enrollment, UserProfile, AuthenticationLog)
 │   │   └── schemas.py           # Pydantic request and response schemas
 │   └── main.py                  # FastAPI application entry point
@@ -57,10 +60,10 @@ KeyShield_AI/
 │   ├── css/
 │   │   └── style.css            # Dark mode cybersecurity SaaS design system
 │   ├── js/
-│   │   ├── main.js              # API client & raw keystroke event recorder
+│   │   ├── main.js              # API client, 25-paragraph bank & anti-cheat protection
 │   │   └── dashboard.js         # Chart.js analytics & dashboard logic
 │   ├── index.html               # Landing page
-│   ├── enroll.html              # 5-sample fixed paragraph enrollment recorder
+│   ├── enroll.html              # 5-sample paragraph recorder
 │   ├── authenticate.html        # Biometric verification tester
 │   └── dashboard.html           # Analytics dashboard
 └── tests/                       # Automated pytest suite
@@ -70,7 +73,7 @@ KeyShield_AI/
 
 ## Quick Start (Local Setup)
 
-### 1. Environment Setup & Dependencies
+### 1. Environment Setup
 ```bash
 git clone https://github.com/gyana10/KeyShield-AI.git
 cd KeyShield-AI
@@ -95,14 +98,14 @@ Open `frontend/index.html` in your web browser.
 
 ---
 
-## Automated Testing
-Run the automated test suite:
+## Automated Test Execution
+Run the automated Pytest test suite:
 ```bash
 pytest tests/ -v
 ```
 
 ---
 
-## Production Deployment
+## Live Production Deployments
 - **Backend API**: Deployed on Render (`https://keyshield-ai-backend.onrender.com`)
 - **Frontend App**: Deployed on Vercel (`https://key-shield-ai.vercel.app`)
