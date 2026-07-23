@@ -30,7 +30,7 @@ def enroll_profile(request: EnrollmentRequest, db: Session = Depends(get_db)):
     # 1. Extract 17 statistical feature vectors for all 5 samples
     extracted_features = []
     for idx, raw_events in enumerate(raw_samples):
-        events_list = [e.dict() if hasattr(e, 'dict') else e.model_dump() for e in raw_events]
+        events_list = [e.model_dump() for e in raw_events]
         feat_vector = extract_keystroke_features(events_list)
         extracted_features.append(feat_vector)
 

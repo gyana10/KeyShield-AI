@@ -1,8 +1,13 @@
 from sqlalchemy import Column, Integer, String, Float, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 
 from backend.db.database import Base
+
+
+def utc_now_naive():
+    # Returns naive datetime representing UTC to avoid deprecation warnings
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class User(Base):
@@ -12,7 +17,7 @@ class User(Base):
     username = Column(String(100), unique=True, nullable=False)
     email = Column(String(255), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     enrollments = relationship("Enrollment", back_populates="user", cascade="all, delete-orphan")
     profile = relationship("UserProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
@@ -29,7 +34,7 @@ class Enrollment(Base):
     flight_times = Column(Text, nullable=False)
     total_duration = Column(Float, nullable=False)
     backspaces = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     user = relationship("User", back_populates="enrollments")
 
@@ -48,8 +53,8 @@ class UserProfile(Base):
     sample_count = Column(Integer, default=1)
     drift_score = Column(Float, default=0.0)
     profile_blob = Column(Text, nullable=True)  # JSON string storing full 17-feature profile baseline
-    last_updated = Column(DateTime, default=datetime.utcnow)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    last_updated = Column(DateTime, default=utc_now_naive)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     user = relationship("User", back_populates="profile")
 
@@ -67,6 +72,6 @@ class AuthenticationLog(Base):
     confidence_score = Column(Float, default=0.0)
     model_contributions = Column(Text, nullable=True)  # JSON string
     shap_explanation = Column(Text, nullable=True)     # JSON string
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     user = relationship("User", back_populates="auth_logs")
