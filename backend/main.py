@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -10,20 +11,24 @@ from backend.api.dashboard import router as dashboard_router
 
 load_dotenv()
 
-app = FastAPI(
-    title="KeyShield AI - Behavioral Biometrics Engine",
-    description="4-Layer Commercial Behavioral Biometrics Verification Engine powered by Stacking Ensemble & Tree SHAP",
-    version="2.0.0"
-)
 
-
-@app.on_event("startup")
-def on_startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Setup database on startup
     try:
         init_db()
     except Exception as e:
         print("Database startup initialization notice:", e)
+    yield
+    # Clean up on shutdown if needed
 
+
+app = FastAPI(
+    title="KeyShield AI - Behavioral Biometrics Engine",
+    description="4-Layer Commercial Behavioral Biometrics Verification Engine powered by Stacking Ensemble & Tree SHAP",
+    version="2.0.0",
+    lifespan=lifespan
+)
 
 # Wildcard CORS middleware for seamless local and cloud deployment
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
