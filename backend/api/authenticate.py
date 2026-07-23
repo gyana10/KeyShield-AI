@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -10,6 +10,10 @@ from backend.ml.predictor import predictor_engine
 from backend.ml.feature_engineering import create_behavioral_profile
 
 router = APIRouter(tags=["Authentication"])
+
+
+def utc_now_naive():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 @router.post("/authenticate", response_model=VerificationResponse)
@@ -29,7 +33,7 @@ def authenticate_sample(request: VerificationRequest, db: Session = Depends(get_
         db.add(user_record)
         db.commit()
 
-    raw_events = [e.dict() if hasattr(e, 'dict') else e.model_dump() for e in request.events]
+    raw_events = [e.model_dump() for e in request.events]
 
     # Fetch User Behavioral Profile from Database
     profile_record = db.query(UserProfile).filter(UserProfile.user_id == 1).first()
@@ -74,7 +78,7 @@ def authenticate_sample(request: VerificationRequest, db: Session = Depends(get_
     # Update Profile via EMA if genuine & high confidence
     if result.get("profile_updated") and result.get("new_profile") and profile_record:
         profile_record.profile_blob = json.dumps(result["new_profile"])
-        profile_record.last_updated = datetime.utcnow()
+        profile_record.last_updated = utc_now_naive()
 
     db.commit()
 
@@ -96,5 +100,5 @@ def authenticate_sample(request: VerificationRequest, db: Session = Depends(get_
         "text_explanation": result["text_explanation"],
         "feature_breakdown": result["feature_breakdown"],
         "profile_updated": result["profile_updated"],
-        "timestamp": datetime.utcnow()
+        "timestamp": utc_now_naive()
     }
