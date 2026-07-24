@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Behavioral Profile Enrollment - KeyShield AI</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
+    <canvas id="threejs-bg"></canvas>
+
     <nav class="navbar">
         <a href="index.html" class="brand">
             <div class="brand-icon">KS</div>
@@ -20,39 +23,68 @@
         </ul>
     </nav>
 
-    <main class="container" style="max-width: 860px;">
+    <main class="container animate-fade" style="max-width: 900px;">
         <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2 style="font-size: 1.5rem; font-weight: 700;">Behavioral Baseline Enrollment</h2>
+            <!-- Guided Progress System -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h2 style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em;">Behavioral Enrollment</h2>
                 <div class="badge badge-low" id="sample-progress-badge">Sample 1 of 5</div>
             </div>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
-                To build your 17-feature statistical behavioral profile (mean, std, min, max, median), type the paragraph below <strong>5 separate times</strong>. A new random paragraph will load for each sample. Copy-pasting is strictly prohibited.
+            
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar-fill" style="width: 20%;"></div>
+            </div>
+
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;">
+                To build your 17-feature statistical behavioral baseline, type the paragraph below <strong>5 separate times</strong>. A new random paragraph will load for each sample. Copy-pasting or automated input is strictly prohibited.
             </p>
 
-            <div id="alert-box" style="display: none; padding: 0.75rem; border-radius: var(--radius-input); font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
+            <div id="alert-box" style="display: none; padding: 0.75rem; border-radius: var(--radius-input); font-size: 0.85rem; margin-bottom: 1.5rem; text-align: center;"></div>
 
             <div class="typing-box" id="typing-container">
                 <div class="phrase-display" id="target-phrase" style="user-select: none; -webkit-user-select: none;">Loading paragraph...</div>
-                <input type="text" id="typing-input" class="form-control" placeholder="Click here and type the paragraph above..." autocomplete="off" spellcheck="false" style="text-align: center; font-size: 1rem; letter-spacing: 0.02em;">
+                <input type="text" id="typing-input" class="form-control" placeholder="Click here and type the paragraph above..." autocomplete="off" spellcheck="false" style="text-align: center; font-size: 1.05rem; letter-spacing: 0.02em;">
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
                 <button id="reset-btn" class="btn btn-secondary">Reset Sample</button>
                 <button id="submit-sample-btn" class="btn btn-primary" disabled>Submit Sample (1/5)</button>
             </div>
         </div>
 
-        <!-- Enrollment Summary Card -->
-        <div id="enrollment-complete-card" class="card" style="margin-top: 1.5rem; display: none;">
-            <div style="color: #3fb950; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Behavioral Profile Successfully Created</div>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+        <!-- Live Telemetry Monitor Section -->
+        <div class="grid-4" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="card stat-card">
+                <div class="stat-label">Hold Duration</div>
+                <div class="stat-value" id="telemetry-hold">- ms</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-label">Flight Transition</div>
+                <div class="stat-value" id="telemetry-flight">- ms</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-label">Typing Speed</div>
+                <div class="stat-value" id="telemetry-speed">- KPM</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-label">Rhythm Score</div>
+                <div class="stat-value" id="telemetry-rhythm" style="color: var(--accent-cyan);">-</div>
+            </div>
+        </div>
+
+        <!-- Enrollment Summary & Completion Card -->
+        <div id="enrollment-complete-card" class="card animate-slide" style="margin-top: 1.5rem; display: none;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: rgba(34, 197, 94, 0.2); color: var(--success); font-weight: 800; font-size: 0.85rem;">✓</span>
+                <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 700; color: var(--success);">Behavioral Profile Successfully Created</h3>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1.5rem;">
                 All 5 enrollment samples recorded. Your 17 statistical feature baseline is saved and ready for verification testing.
             </p>
 
             <div id="enrollment-summary-box"></div>
 
-            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
                 <a href="authenticate.html" class="btn btn-primary">Test Biometric Verification &rarr;</a>
                 <a href="dashboard.html" class="btn btn-secondary">View Profile on Dashboard</a>
             </div>
@@ -60,7 +92,7 @@
     </main>
 
     <footer>
-        KeyShield AI &copy; 2026 — Behavioral Biometrics Verification Engine
+        KeyShield AI &copy; 2026 — Enterprise Behavioral Biometrics Platform
     </footer>
 
     <script src="js/main.js"></script>
