@@ -10,9 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultCard = document.getElementById("result-card");
     const riskBadge = document.getElementById("risk-badge");
     const resDecision = document.getElementById("res-decision");
-    const resConfidence = document.getElementById("res-confidence");
-    const resSimilarity = document.getElementById("res-similarity");
-    const resProb = document.getElementById("res-prob");
     const resIso = document.getElementById("res-iso");
     const resBaseModels = document.getElementById("res-base-models");
     const resProfileUpdated = document.getElementById("res-profile-updated");
@@ -70,7 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const val = typingInput.value.trim();
         const normTarget = targetPhrase.trim();
 
-        // Enable button if exact match or typed length >= 92% of target phrase length
         if (val === normTarget || (val.length >= normTarget.length * 0.92)) {
             authBtn.disabled = false;
             showAlert("Paragraph typed! Click 'Run Verification Engine' to evaluate.", false);
@@ -110,20 +106,53 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    function animateCircularGauge(progressElementId, valueElementId, targetVal) {
+        const progressEl = document.getElementById(progressElementId);
+        const valueEl = document.getElementById(valueElementId);
+        if (!progressEl || !valueEl) return;
+
+        let currentVal = 0;
+        const duration = 800; // 0.8 seconds
+        const start = performance.now();
+
+        const step = (timestamp) => {
+            const progress = Math.min((timestamp - start) / duration, 1);
+            currentVal = progress * targetVal;
+            valueEl.textContent = `${currentVal.toFixed(1)}%`;
+            
+            const degrees = (currentVal / 100) * 360;
+            progressEl.style.background = `conic-gradient(var(--accent-cyan) ${degrees}deg, rgba(255,255,255,0.05) 0deg)`;
+
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                valueEl.textContent = `${targetVal.toFixed(1)}%`;
+                const finalDegrees = (targetVal / 100) * 360;
+                progressEl.style.background = `conic-gradient(var(--accent-cyan) ${finalDegrees}deg, rgba(255,255,255,0.05) 0deg)`;
+            }
+        };
+
+        window.requestAnimationFrame(step);
+    }
+
     function renderVerificationResults(res) {
         showAlert("Verification Engine Execution Complete ✓ Results displayed below.", false);
 
         resDecision.textContent = res.decision;
-        resDecision.style.color = res.decision === "GENUINE" ? "#3fb950" : "#f85149";
+        resDecision.style.color = res.decision === "GENUINE" ? "var(--success)" : "var(--danger)";
 
         riskBadge.textContent = `${res.risk} RISK`;
         if (res.risk === "LOW") riskBadge.className = "badge badge-low";
         else if (res.risk === "MEDIUM") riskBadge.className = "badge badge-medium";
         else riskBadge.className = "badge badge-high";
 
-        resConfidence.textContent = `${res.confidence}%`;
-        resSimilarity.textContent = `${res.profile_similarity}%`;
-        resProb.textContent = `${((res.stacking_probability || res.probability_genuine || 0.94) * 100).toFixed(1)}%`;
+        // Animate circular gauges
+        animateCircularGauge("progress-similarity", "res-similarity", res.profile_similarity || 0);
+        
+        const stackingProb = ((res.stacking_probability || res.probability_genuine || 0.94) * 100);
+        animateCircularGauge("progress-stacking", "res-prob", stackingProb);
+        
+        animateCircularGauge("progress-confidence", "res-confidence", res.confidence || 0);
 
         const isoScore = res.isolation_forest_score || 0.88;
         const isoRes = res.isolation_forest_result || "Normal";
@@ -132,10 +161,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const rf = (((res.rf_probability || 0.90)) * 100).toFixed(0);
         const xgb = (((res.xgb_probability || 0.92)) * 100).toFixed(0);
         const lgb = (((res.lgb_probability || 0.91)) * 100).toFixed(0);
-        resBaseModels.textContent = `RF: ${rf}% | XGB: ${xgb}% | LGB: ${lgb}%`;
+        resBaseModels.textContent = `Random Forest: ${rf}% | XGBoost: ${xgb}% | LightGBM: ${lgb}%`;
 
         resProfileUpdated.textContent = res.profile_updated ? "Updated (EMA)" : "Held Stable";
-        resProfileUpdated.style.color = res.profile_updated ? "#3fb950" : "#8b949e";
+        resProfileUpdated.style.color = res.profile_updated ? "var(--success)" : "var(--text-secondary)";
 
         resShapText.textContent = res.text_explanation || "Keystroke hold times and flight times closely matched the enrolled behavioral profile.";
 
