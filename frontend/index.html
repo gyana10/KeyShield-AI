@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KeyShield AI - Behavioral Biometrics Verification Engine</title>
+    <title>KeyShield AI - Enterprise Behavioral Biometrics Platform</title>
     <link rel="stylesheet" href="css/style.css">
+    <!-- Load Three.js library for immersive procedural wave background -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
+    <!-- Immersive Background Canvas -->
+    <canvas id="threejs-bg"></canvas>
+
     <nav class="navbar">
         <a href="index.html" class="brand">
             <div class="brand-icon">KS</div>
@@ -20,52 +25,55 @@
         </ul>
     </nav>
 
-    <div class="container">
+    <div class="container animate-fade">
         <!-- Hero Section -->
-        <section style="text-align: center; padding: 4rem 1rem 3rem 1rem; max-width: 820px; margin: 0 auto;">
-            <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Commercial Behavioral Biometrics Engine</span>
-            <h1 style="font-size: 3.2rem; font-weight: 800; line-height: 1.1; margin: 0.85rem 0 1.25rem 0; letter-spacing: -0.03em;">
-                Continuous Behavioral Biometric Verification
+        <section style="text-align: center; padding: 6rem 1rem 4rem 1rem; max-width: 900px; margin: 0 auto; position: relative; z-index: 10;">
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); padding: 0.5rem 1.25rem; border-radius: 100px; margin-bottom: 1.75rem; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.05);">
+                <span style="width: 6px; height: 6px; background-color: var(--accent-cyan); border-radius: 50%; display: inline-block; box-shadow: 0 0 8px var(--accent-cyan);"></span>
+                <span style="color: var(--accent-cyan); font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">Enterprise Identity Security</span>
+            </div>
+            <h1 style="font-family: var(--font-heading); font-size: 3.8rem; font-weight: 800; line-height: 1.15; margin-bottom: 1.5rem; letter-spacing: -0.03em; background: linear-gradient(135deg, #FFFFFF 50%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Behavioral Biometrics<br><span style="background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Powered by Explainable AI</span>
             </h1>
-            <p style="color: var(--text-secondary); font-size: 1.15rem; line-height: 1.5; margin-bottom: 2.25rem;">
-                KeyShield AI verifies user identity through 4 independent decision layers: Statistical Behavioral Profile, Isolation Forest Anomaly Detection, 5-Fold OOF Stacking Ensemble, and Tree SHAP Explainability.
+            <p style="color: var(--text-secondary); font-size: 1.2rem; line-height: 1.6; margin-bottom: 3rem; max-width: 760px; margin-left: auto; margin-right: auto;">
+                Continuous identity verification using keystroke dynamics, statistical behavioral profiling, anomaly detection, ensemble learning, and explainable artificial intelligence.
             </p>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
-                <a href="enroll.html" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-size: 0.95rem;">Start 5-Sample Enrollment</a>
-                <a href="authenticate.html" class="btn btn-secondary" style="padding: 0.75rem 1.75rem; font-size: 0.95rem;">Test Biometrics</a>
-                <a href="dashboard.html" class="btn btn-secondary" style="padding: 0.75rem 1.75rem; font-size: 0.95rem;">Analytics Dashboard</a>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1.25rem; flex-wrap: wrap;">
+                <a href="enroll.html" class="btn btn-primary" style="padding: 0.85rem 2rem; font-size: 0.95rem;">Start Enrollment</a>
+                <a href="authenticate.html" class="btn btn-secondary" style="padding: 0.85rem 2rem; font-size: 0.95rem;">Verify Identity</a>
+                <a href="dashboard.html" class="btn btn-secondary" style="padding: 0.85rem 2rem; font-size: 0.95rem;">View Dashboard</a>
             </div>
         </section>
 
-        <!-- 4 Decision Layers Breakdown -->
-        <div class="grid-4" style="margin-top: 2.5rem;">
+        <!-- 4 Decision Layers Grid -->
+        <div class="grid-4 animate-slide" style="margin-top: 4rem; position: relative; z-index: 10;">
             <div class="card">
-                <div style="color: var(--accent-blue); font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem;">LAYER 1 (45%)</div>
-                <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">Statistical Profile</h3>
+                <div style="color: var(--accent-blue); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem;">Layer 1 &bull; 45% Weight</div>
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Behavioral Profile</h3>
                 <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5;">
-                    Extracts 17 statistical feature dimensions across 5 enrollment samples calculating mean, std, min, max, and median baseline tolerances.
+                    Extracts 17 statistical feature dimensions across 5 enrollment samples, calculating mean, std, min, max, and median baseline tolerances.
                 </p>
             </div>
 
             <div class="card">
-                <div style="color: var(--accent-purple); font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem;">LAYER 2 (15%)</div>
-                <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">Isolation Forest</h3>
+                <div style="color: var(--accent-cyan); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem;">Layer 2 &bull; 15% Weight</div>
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Isolation Forest</h3>
                 <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5;">
-                    Independent Layer 2 anomaly detection model evaluating whether verification timing patterns are statistically unusual.
+                    Independent unsupervised anomaly detection model evaluating whether verification timing patterns are statistically unusual.
                 </p>
             </div>
 
             <div class="card">
-                <div style="color: #3fb950; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem;">LAYER 3 (40%)</div>
-                <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">Stacking Ensemble</h3>
+                <div style="color: var(--accent-green); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem;">Layer 3 &bull; 40% Weight</div>
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Stacking Ensemble</h3>
                 <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5;">
-                    Random Forest + XGBoost + LightGBM base models fed into a Stratified 5-Fold OOF Logistic Regression Meta Learner (**92.09% Acc, 0.9302 AUC**).
+                    Random Forest + XGBoost + LightGBM base models fed into a Stratified 5-Fold OOF Logistic Regression Meta Learner.
                 </p>
             </div>
 
             <div class="card">
-                <div style="color: var(--accent-yellow); font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem;">LAYER 4 (XAI)</div>
-                <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">Tree SHAP Explainability</h3>
+                <div style="color: var(--warning); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem;">Layer 4 &bull; Explainability</div>
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Explainable AI</h3>
                 <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5;">
                     Provides local feature attributions, contribution percentages, and natural language explanations for every authentication decision.
                 </p>
@@ -74,7 +82,7 @@
     </div>
 
     <footer>
-        KeyShield AI &copy; 2026 — Behavioral Biometrics Verification Engine
+        KeyShield AI &copy; 2026 — Enterprise Behavioral Biometrics Platform
     </footer>
 
     <script src="js/main.js"></script>
