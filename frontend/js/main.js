@@ -118,3 +118,136 @@ class ApiClient {
         return this.request("/statistics", "GET");
     }
 }
+
+// -------------------------------------------------------------
+// Interactive Three.js Background wave/particle simulator
+// -------------------------------------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    const canvas = document.getElementById("threejs-bg");
+    if (!canvas) return;
+
+    if (typeof THREE === "undefined") {
+        console.warn("Three.js library not loaded.");
+        return;
+    }
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.z = 220;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Particle network
+    const particleCount = 650;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+
+    const colorBlue = new THREE.Color("#3B82F6");
+    const colorCyan = new THREE.Color("#22D3EE");
+
+    for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 600;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 600;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 300;
+
+        const mixedColor = colorBlue.clone().lerp(colorCyan, Math.random());
+        colors[i * 3] = mixedColor.r;
+        colors[i * 3 + 1] = mixedColor.g;
+        colors[i * 3 + 2] = mixedColor.b;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    // Circular particle texture generator
+    const pCanvas = document.createElement('canvas');
+    pCanvas.width = 16;
+    pCanvas.height = 16;
+    const ctx = pCanvas.getContext('2d');
+    const grad = ctx.createRadialGradient(8, 8, 0, 8, 8, 8);
+    grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 16, 16);
+    const texture = new THREE.CanvasTexture(pCanvas);
+
+    const material = new THREE.PointsMaterial({
+        size: 4,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.5,
+        map: texture,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+
+    const particles = new THREE.Points(geometry, material);
+    scene.add(particles);
+
+    // Wave grid lines
+    const lineCount = 24;
+    const lineGeometry = new THREE.BufferGeometry();
+    const linePositions = [];
+    const lineColors = [];
+
+    for (let j = 0; j < lineCount; j++) {
+        const xOffset = (j - lineCount/2) * 25;
+        for (let k = 0; k < 35; k++) {
+            const zVal = (k - 17) * 18;
+            linePositions.push(xOffset, 0, zVal);
+            lineColors.push(colorBlue.r, colorBlue.g, colorBlue.b);
+        }
+    }
+
+    lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+    lineGeometry.setAttribute('color', new THREE.Float32BufferAttribute(lineColors, 3));
+
+    const lineMat = new THREE.LineBasicMaterial({
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.12,
+        blending: THREE.AdditiveBlending
+    });
+
+    const gridLines = new THREE.Line(lineGeometry, lineMat);
+    scene.add(gridLines);
+
+    const clock = new THREE.Clock();
+
+    const animate = () => {
+        requestAnimationFrame(animate);
+
+        const elapsed = clock.getElapsedTime();
+
+        // Wave vertex computation
+        const posAttr = gridLines.geometry.attributes.position;
+        const count = posAttr.count;
+        for (let i = 0; i < count; i++) {
+            const x = posAttr.getX(i);
+            const z = posAttr.getZ(i);
+            const y = Math.sin(x * 0.015 + elapsed * 1.3) * 12 + Math.cos(z * 0.01 + elapsed * 1.1) * 8;
+            posAttr.setY(i, y);
+        }
+        gridLines.geometry.attributes.position.needsUpdate = true;
+
+        particles.rotation.y = elapsed * 0.02;
+        particles.rotation.x = elapsed * 0.01;
+
+        camera.position.x = Math.sin(elapsed * 0.15) * 20;
+        camera.position.y = Math.cos(elapsed * 0.08) * 12;
+        camera.lookAt(scene.position);
+
+        renderer.render(scene, camera);
+    };
+
+    animate();
+
+    window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+});
