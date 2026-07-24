@@ -12,14 +12,16 @@ class TreeSHAPExplainer:
 
         if rf_model is not None:
             try:
+                # Initialize TreeExplainer on Random Forest for local interpretations
                 self.explainer = shap.TreeExplainer(rf_model)
             except Exception as e:
                 print("SHAP TreeExplainer initialization notice:", e)
 
     def explain_sample(self, feature_dict: dict, decision: str, risk: str, profile_sim: float, iso_result: str, stacking_prob: float) -> dict:
         """
-        Generates Tree SHAP local feature contributions, top contributing features, and natural language explanation.
+        Calculates local feature attributions using SHAP and formats a natural explanation.
         """
+        # Convert dictionary features to 2D numpy array for the model
         feature_vector = np.array([[feature_dict.get(f, 0.0) for f in FEATURE_NAMES]])
         local_contributions = {}
         top_features = []
@@ -27,19 +29,23 @@ class TreeSHAPExplainer:
         if self.explainer is not None:
             try:
                 shap_values = self.explainer.shap_values(feature_vector)
+                
+                # Unpack SHAP values structure based on output dimensions
                 if isinstance(shap_values, list):
+                    # Multi-class output: use values for the class (1) if available
                     vals = np.abs(shap_values[1][0]) if len(shap_values) > 1 else np.abs(shap_values[0][0])
                 elif len(shap_values.shape) == 3:
                     vals = np.abs(shap_values[0, :, 1])
                 else:
                     vals = np.abs(shap_values[0])
 
+                # Convert absolute SHAP values to percentage contributions
                 total_val = float(np.sum(vals)) + 1e-6
                 for name, val in zip(FEATURE_NAMES, vals):
                     pct = round((float(val) / total_val) * 100.0, 1)
                     local_contributions[name] = pct
 
-                # Sort top 3 contributing features
+                # Identify the top 3 most influential features
                 sorted_feats = sorted(local_contributions.items(), key=lambda x: x[1], reverse=True)[:3]
                 top_features = [{"feature": k, "contribution_pct": v} for k, v in sorted_feats]
 
@@ -47,7 +53,7 @@ class TreeSHAPExplainer:
                 print("SHAP computation fallback notice:", err)
 
         if not local_contributions:
-            # Fallback default feature contributions
+            # Simple static fallback values if SHAP computation fails or is skipped
             local_contributions = {
                 "hold_mean": 28.5,
                 "flight_mean": 24.2,
@@ -61,7 +67,7 @@ class TreeSHAPExplainer:
                 {"feature": "rhythm_score", "contribution_pct": 18.3}
             ]
 
-        # Generate Human-Readable Natural Language Explanation
+        # Generate a clear human-readable explanation
         if decision == "GENUINE":
             text_explanation = (
                 f"Authentication classified as GENUINE because hold times, flight times, and typing rhythm "
